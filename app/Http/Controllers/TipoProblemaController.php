@@ -1,0 +1,85 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\TipoProblema;
+use Inertia\Inertia;
+use Illuminate\Validation\Rule;
+
+
+class TipoProblemaController extends Controller
+{
+    public function index(Request $request){
+        $query = TipoProblema::query();
+
+        if($request->has('nombre')) {
+            $nombreFilter = $request->input('nombre');
+            $query->where('nombre', 'like', '%' . $nombreFilter . '%');
+        }
+
+        $tipoProblema = $query->get();
+
+        $tableColumns = [
+            ['key' => 'id', 'label' => 'ID'],
+            ['key' => 'nombre', 'label' => 'Nombre'],
+            ['key' => 'prioridad', 'label' => 'Prioridad'],
+            ['key' => 'estado', 'label' => 'Estado'],
+        ];
+
+        return Inertia::render('TipoProblema/Table', [
+            'tipoProblema' => $tipoProblema,
+            'tableColumns' => $tableColumns,
+        ]);
+
+    }
+
+    public function create(){
+        return Inertia::render('TipoProblema/Create');
+    }
+
+    public function store(Request $request){
+
+        $request->validate([
+            'nombre' => 'required|unique:tipo_problemas|max:100',
+            'prioridad' => 'required|numeric|between:1,5',
+            'estado' => 'required',
+        ]);
+
+        TipoProblema::create($request->all());
+
+        return redirect()->route('tipo-problema.index')->with('message', 'Tipo de problema creada');
+        //return Inertia::location(route('tipo-problema.index'));
+    }
+
+    public function edit(TipoProblema $tipoProblema){
+        return Inertia::render('TipoProblema/Edit', [
+            'tipoProblema' => $tipoProblema,
+        ]);
+    }
+
+    public function update(Request $request, TipoProblema $tipoProblema){
+        $request->validate([
+            'nombre' => [
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('tipo_problemas')->ignore($tipoProblema->id),
+            ],
+            'prioridad' => 'required|numeric|between:1,5',
+            'estado' => 'required',
+        ]);
+
+        $tipoProblema->update($request->all());
+
+        return redirect()->route('tipo-problema.index')->with('message', 'Tipo de problema actualizado');
+        //return Inertia::location(route('tipo-problema.index'));
+    }
+
+    public function destroy($id){
+        $tipoProblema = TipoProblema::find($id);
+        $tipoProblema->delete();
+        
+        return redirect()->route('tipo-problema.index');
+    }
+}
