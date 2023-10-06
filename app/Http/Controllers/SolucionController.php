@@ -11,7 +11,6 @@ use App\Models\TipoSolucion;
 use Illuminate\Support\Facades\DB;
 
 
-
 class SolucionController extends Controller
 {
     
@@ -19,13 +18,13 @@ class SolucionController extends Controller
     {
         $query = Solucion::query();
 
-        if ($request->has('nombre')) {
-            $nombreFilter = $request->input('nombre');
+        if ($request->has('id')) {
+            $nombreFilter = $request->input('id');
             $query->where(function ($subquery) use ($nombreFilter) {
-                $subquery->orWhere('id', 'like', '%' . $nombreFilter . '%')
+                $subquery->orWhere('equipos', 'like', '%' . $nombreFilter . '%')
                     ->orWhere('descripcion', 'like', '%' . $nombreFilter . '%')
                     ->orWhere('estado', 'like', '%' . $nombreFilter . '%')
-                    ->orWhere('equipos.codigop', 'like', '%' . $nombreFilter . '%');
+                    ->orWhere('equipos', 'like', '%' . $nombreFilter . '%');
             });
         }
 
@@ -37,12 +36,10 @@ class SolucionController extends Controller
 
         $tableColumns = [
             ['key' => 'id', 'label' => 'ID'],
-            ['key' => 'equipo', 'label' => 'Equipo'],
-            ['key' => 'incidencias.tipo_problema_id', 'label' => 'Problema'],
+            ['key' => 'equipos', 'label' => 'Equipo'],
+            ['key' => 'tipo_solucion.nombre', 'label' => 'Tipo de solución'],
             ['key' => 'descripcion', 'label' => 'Descripción'],
             ['key' => 'estado', 'label' => 'Estado'],
-
-
         ];
 
         $incidenciasAtendidas = DB::table('solucions')

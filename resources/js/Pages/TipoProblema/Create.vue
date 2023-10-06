@@ -62,7 +62,7 @@ const createForm = () => {
                 <label
                   for="prioridad"
                   class="block uppercase tracking-wide text-gray-700 text-xs after:content-['*'] after:ml-0.5 after:text-red-500 font-bold mb-2"
-                  >Prioridad</label
+                  >Prioridad (1 - 5)</label
                 >
                 <input
                   type="text"

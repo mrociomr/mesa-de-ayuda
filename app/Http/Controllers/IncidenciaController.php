@@ -50,7 +50,7 @@ class IncidenciaController extends Controller
             ['key' => 'id', 'label' => 'ID'],
             ['key' => 'dni', 'label' => 'DNI'],
             ['key' => 'celular', 'label' => 'Celular'],
-            ['key' => 'tipo_problema.nombre', 'label' => 'Problema'],
+            ['key' => 'tipo_problema.nombre', 'label' => 'Tipo de problema'],
             ['key' => 'oficina.nombre', 'label' => 'Oficina'],
         ];
 

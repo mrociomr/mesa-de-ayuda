@@ -26,9 +26,9 @@ const form = useForm({
 <template>
     <section>
         <header>
-            <h2 class="text-lg font-medium text-gray-900">Información del perfil</h2>
+            <h2 class="text-xl font-medium text-gray-900">Información del perfil</h2>
 
-            <p class="mt-1 text-sm text-gray-600">
+            <p class="mt-1 text-base text-gray-600">
                 Aquí puedes visualizar tu información de perfil
             </p>
         </header>

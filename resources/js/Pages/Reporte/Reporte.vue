@@ -257,14 +257,10 @@ const generatePDF = () => {
   doc.text('Año:', 20, 65);
   doc.text('Fecha:', 20,70);
 
-  doc.addImage(imgData1, "JPEG", 15, 5, 17, 20);
-  doc.addImage(imgData2, "PNG", 175, 6, 25, 20);
 
   const chartContainer = document.querySelector(".chart-container");
   const chartWidth = chartContainer.offsetWidth;
   const chartHeight = chartContainer.offsetHeight;
-
-  
 
   //IMAGEN (CHART)
   // Aumenta la resolución de la imagen capturada
@@ -274,6 +270,9 @@ const generatePDF = () => {
     scale: scale,
   }).then((canvas) => {
     const data = datass
+
+
+
     doc.autoTable({
       head: [
         [
@@ -301,16 +300,16 @@ const generatePDF = () => {
     doc.addPage();
     doc.setFont('Courier');
     doc.setFontSize(17);
-    doc.text("Gráfico Resumen por tipo de problema:", 10, 30);
-    doc.addImage(chartImage, "JPEG", 10, 40, imageWidth, imageHeight);
+    doc.text("Gráfico Resumen por tipo de problema:", 10, 40);
+    doc.addImage(chartImage, "JPEG", 10, 50, imageWidth, imageHeight);
 
+    
 
     //PAGE NUMBERING
   const pageCount = doc.internal.getNumberOfPages();
 
 for (var i=1; i <= pageCount; i++){
   doc.setPage(i);
-
 
   doc.addFileToVFS("Pacifico-Regular.ttf", font1);
   doc.setFontSize(20);
@@ -319,13 +318,14 @@ for (var i=1; i <= pageCount; i++){
   doc.setFont("Pacifico-Regular", "Regular");
   doc.text("Municipalidad Provincial de Puno", 55, 13);
 
-  console.log(doc.getFontList());
-
   doc.addFileToVFS("LexendDeca-Thin.ttf", font2);
   doc.setFontSize(15);
   doc.addFont("LexendDeca-Thin.ttf", "LexendDeca-Thin", "Regular");
   doc.setFont("LexendDeca-Thin", "Regular");
   doc.text("Oficina de Tecnología Informática", 65, 23);
+
+  doc.addImage(imgData1, "JPEG", 15, 5, 17, 20);
+  doc.addImage(imgData2, "PNG", 175, 6, 25, 20);
 
   doc.setDrawColor(17, 42, 74);
   doc.line(0, 28, 215, 28, "S");
