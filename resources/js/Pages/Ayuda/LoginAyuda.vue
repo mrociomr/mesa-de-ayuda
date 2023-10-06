@@ -22,10 +22,10 @@ const createForm = async () => {
 <template>
   <Head title="Login" />
   <div
-    class="min-h-screen flex justify-center bg-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-500 bg-no-repeat bg-cover relative items-center"
+    class="fondo min-h-screen flex justify-center bg-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-500 bg-no-repeat bg-cover relative items-center"
     style="
       background-image: url(https://ojoalclima.com/wp-content/uploads/2022/07/20-Lago-Titicaca.jpg);
-    "
+      "
   >
     <div class="absolute bg-black opacity-60 inset-0 z-0"></div>
     <div
@@ -36,8 +36,8 @@ const createForm = async () => {
           <div class="flex flex-col sm:flex-row items-center">
             <div class="w-12 h-12 mr-4 flex-none rounded-xl overflow-hidden">
               <img
-                class="w-12 h-12 mr-4 object-cover"
-                src="https://d1yjjnpx0p53s8.cloudfront.net/styles/logo-thumbnail/s3/112019/logo_de_puno.png?jy5cN0INfyAE7TX1YDj1_WmvJ24aj9wu&itok=vnbKVJP4"
+                class="w-10 h-15 mr-4 object-cover"
+                src="/images/Escudo_de_Puno.png" 
                 alt="Logo del municipio de Puno"
               />
             </div>
@@ -123,5 +123,4 @@ const createForm = async () => {
     </div>
   </div>
 </template>
-
 
