@@ -13,7 +13,8 @@ class Incidencia extends Model
         'celular',
         'tipo_problema_id',
         'oficina_id',
-        'otros'
+        'otros',
+        
     ];
 
     public function tipo_problema(){

@@ -9,67 +9,81 @@ use App\Models\TipoProblema;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 
 class IncidenciaController extends Controller
 {
-    
+
     public function index(Request $request)
     {
-        // Validación de entrada
-        $request->validate([
-            'nombre' => 'string|nullable',
-        ]);
+        if (Auth::user()->can('incidencia.index')) {
 
-        $query = Incidencia::query();
+            // Validación de entrada
+            $request->validate([
+                'nombre' => 'string|nullable',
+            ]);
 
-        if ($request->has('nombre')) {
-            $nombreFilter = $request->input('nombre');
-            $query->where(function ($subquery) use ($nombreFilter) {
-                $subquery->orWhere('dni', 'like', '%' . $nombreFilter . '%')
-                    ->orWhere('celular', 'like', '%' . $nombreFilter . '%')
-                    ->orWhereHas('tipo_problema', function ($subsubquery) use ($nombreFilter) {
-                        $subsubquery->where('nombre', 'like', '%' . $nombreFilter . '%');
-                    });
-            });
+            $query = Incidencia::query();
+
+            if ($request->has('nombre')) {
+                $nombreFilter = $request->input('nombre');
+                $query->where(function ($subquery) use ($nombreFilter) {
+                    $subquery->orWhere('dni', 'like', '%' . $nombreFilter . '%')
+                        ->orWhere('celular', 'like', '%' . $nombreFilter . '%')
+                        ->orWhereHas('tipo_problema', function ($subsubquery) use ($nombreFilter) {
+                            $subsubquery->where('nombre', 'like', '%' . $nombreFilter . '%');
+                        });
+                });
+            }
+
+            //$incidencias = $query->with('oficina', 'tipo_problema')->get();
+            $incidencias = $query->select('incidencias.*')
+                ->from('incidencias')
+                ->whereNotExists(function ($query) {
+                    $query->select(DB::raw(1))
+                        ->from('solucions')
+                        ->whereColumn('solucions.incidencias_id', 'incidencias.id');
+                })
+                ->with('oficina', 'tipo_problema')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $tableColumns = [
+                ['key' => 'id', 'label' => 'ID'],
+                ['key' => 'dni', 'label' => 'DNI'],
+                ['key' => 'celular', 'label' => 'Celular'],
+                ['key' => 'tipo_problema.nombre', 'label' => 'Tipo de problema'],
+                ['key' => 'oficina.nombre', 'label' => 'Oficina'],
+            ];
+
+            foreach ($incidencias as $incidencia) {
+                if ($incidencia->tipo_problema && strtolower($incidencia->tipo_problema->nombre) === 'otros') {
+                    $incidencia->tipo_problema->nombre = $incidencia->otros;
+                }
+            }
+
+            $incidenciasPendientes = DB::table('incidencias')
+                ->leftJoin('solucions', 'incidencias.id', '=', 'solucions.incidencias_id')
+                ->whereNull('solucions.incidencias_id')
+                ->count();
+
+            return Inertia::render('Incidencia/Table', [
+                'incidencia' => $incidencias,
+                'tableColumns' => $tableColumns,
+                'incidenciasPendientes' => $incidenciasPendientes,
+            ]);
+        } else {
+            return redirect()->route('dashboard');
         }
-
-        //$incidencias = $query->with('oficina', 'tipo_problema')->get();
-        $incidencias = $query->select('incidencias.*')
-        ->from('incidencias')
-        ->whereNotExists(function ($query) {
-            $query->select(DB::raw(1))
-                ->from('solucions')
-                ->whereColumn('solucions.incidencias_id', 'incidencias.id');
-        })
-        ->with('oficina', 'tipo_problema')
-        ->orderBy('created_at', 'desc')
-        ->get();
-
-        $tableColumns = [
-            ['key' => 'id', 'label' => 'ID'],
-            ['key' => 'dni', 'label' => 'DNI'],
-            ['key' => 'celular', 'label' => 'Celular'],
-            ['key' => 'tipo_problema.nombre', 'label' => 'Tipo de problema'],
-            ['key' => 'oficina.nombre', 'label' => 'Oficina'],
-        ];
-
-        $incidenciasPendientes = DB::table('incidencias')
-        ->leftJoin('solucions', 'incidencias.id', '=', 'solucions.incidencias_id')
-        ->whereNull('solucions.incidencias_id')
-        ->count();
-
-        return Inertia::render('Incidencia/Table', [
-            'incidencia' => $incidencias,
-            'tableColumns' => $tableColumns,
-            'incidenciasPendientes' => $incidenciasPendientes,
-        ]);
     }
 
 
 
     public function create()
     {
+        if (Auth::user()->can('incidencia.create')) {
+
         $oficinas = Oficina::all();
         $tiposProblema = TipoProblema::all();
         //dd($oficinas);
@@ -77,9 +91,12 @@ class IncidenciaController extends Controller
             'oficinas' => $oficinas,
             'tiposProblema' => $tiposProblema,
         ]);
+    } else {
+        return redirect()->route('dashboard');
+    }
     }
 
-     public function store(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
             'dni' => 'required|digits:8|numeric',
@@ -98,6 +115,8 @@ class IncidenciaController extends Controller
 
     public function edit(Incidencia $incidencia)
     {
+        if (Auth::user()->can('incidencia.edit')) {
+
         $oficinas = Oficina::all();
         $tiposProblema = TipoProblema::all();
         $incidencia->load('oficina', 'tipo_problema');
@@ -107,6 +126,9 @@ class IncidenciaController extends Controller
             'oficinas' => $oficinas,
             'tiposProblema' => $tiposProblema,
         ]);
+    } else {
+        return redirect()->route('dashboard');
+    }
     }
 
     public function update(Request $request, Incidencia $incidencia)
@@ -132,11 +154,17 @@ class IncidenciaController extends Controller
 
     public function destroy($id)
     {
+        if (Auth::user()->can('incidencia.destroy')) {
+
         $incidencia = Incidencia::find($id);
         $incidencia->delete();
 
         return redirect()->route('incidencia.index');
         //return Inertia::location(route('incidencia.index'));
+    } else {
+        return redirect()->route('dashboard');
     }
+    }
+
 
 }

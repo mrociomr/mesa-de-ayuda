@@ -4,12 +4,11 @@ import { useForm } from "@inertiajs/inertia-vue3";
 import { Head } from "@inertiajs/inertia-vue3";
 import { Inertia } from "@inertiajs/inertia";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Link } from '@inertiajs/inertia-vue3';
+import { Link } from "@inertiajs/inertia-vue3";
 import Toast from "@/Components/Toast.vue";
 
 const props = defineProps({
   errors: Object,
-
 });
 
 const form = useForm({
@@ -18,16 +17,12 @@ const form = useForm({
 });
 
 const createForm = () => {
-  form.post(route('key-mensaje.store'));
+  form.post(route("key-mensaje.store"));
 };
-
 </script>
 
 <template>
   <AuthenticatedLayout>
-    <Toast
-    message="Nueva Key creada"
-    />
     <Head title="Crear Key" />
     <div class="py-12">
       <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -40,13 +35,29 @@ const createForm = () => {
                   label="Atrás" text />
                 </Link>
                </div>
-            <p class="text-xl text-center font-semibold text-gray-600 py-4 uppercase">Crear nueva dependencia</p>
+            <p class="text-xl text-center font-semibold text-gray-600 py-4 uppercase">Crear nueva Key</p>
+           
+            <p class="text-xl text-center font-semibold text-gray-600 py-4 ">Para agregar una key realice esta consulta en el navegador: 
+           
+           <a class="text-blue-800" href="https://api.telegram.org/botTUTOKEN/getupdates"> https://api.telegram.org/botTUTOKEN/getupdates </a>
+           </p>
+
+           <p class="text-xl text-center font-semibold text-gray-600 py-4 ">
+            
+            "from": {
+                <br>
+"id": *******,<br>
+"is_bot": false,<br>
+"first_name": "NAME_USER",<br>
+"language_code": "es"
+},
+        </p>
             <form @submit.prevent="createForm" class="mt-6 space-y-6">
               <div class="mb-6">
                 <label
                   for="nombre"
                   class="block uppercase tracking-wide text-gray-700 text-xs after:content-['*'] after:ml-0.5 after:text-red-500 font-bold mb-2"
-                  >Nombre Usuario</label
+                  >Nombre Usuario = first_name</label
                 >
                 <input
                   type="text"
@@ -65,7 +76,7 @@ const createForm = () => {
                 <label
                   for="nombre"
                   class="block uppercase tracking-wide text-gray-700 text-xs after:content-['*'] after:ml-0.5 after:text-red-500 font-bold mb-2"
-                  >Key Usuario</label
+                  >Key Usuario = id</label
                 >
                 <input
                   type="text"

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tightenco\Ziggy\Ziggy;
 use Spatie\Permission\Models\Permission;
+use App\Models\Oficina;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -32,15 +33,25 @@ class HandleInertiaRequests extends Middleware
 
     public function share(Request $request): array
     {
-        $user = $request->user();
-      //  $userRoles = $user ? $user->getRoleNames() : [];
-      //  $userPermissions = $user ? $user->getPermissionsViaRoles() : [];
+
+        // Obtén el usuario autenticado
+        $user = auth()->user();
+
+        // Verifica si el usuario existe y si no es una instancia de "Oficina"
+        if ($user && !($user instanceof Oficina)) {
+            // Aquí puedes realizar acciones que no se aplicarán a usuarios autenticados como "Oficina"
+            $userRoles = $user->getRoleNames();
+            $userPermissions = $user ? $user->getPermissionsViaRoles() : [];
+
+            // Resto del código
+        }
 
         return array_merge(parent::share($request), [
             'auth' => [
                 'user' => $user,
-            //    'roles' => $userRoles,
-            //    'permissions' => $userPermissions,
+                'roles' => $userRoles ?? [],
+                'permissions' => $userPermissions ?? [],
+
             ],
             'ziggy' => function () use ($request) {
                 return array_merge((new Ziggy)->toArray(), [

@@ -86,6 +86,8 @@
     const filter = nombreFilter.value.toLowerCase();
     return props.solucion.filter((item) =>
       item.descripcion.toLowerCase().includes(filter)
+      || item.equipos.toLowerCase().includes(filter)
+      || item.tipo_solucion.nombre.toLowerCase().includes(filter)
     );
   });
 

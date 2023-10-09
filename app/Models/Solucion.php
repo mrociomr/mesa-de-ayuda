@@ -14,6 +14,7 @@ class Solucion extends Model
         'equipos',
         'tipo_solucion_id',
         'incidencias_id',
+        'atendido_por'
     ];
 
     public function equipo(){

@@ -14,11 +14,11 @@
               />
             </span>
           </div>
-          <div class="flex justify-end">
+          <!-- <div class="flex justify-end">
           <Link :href="route('token-mensaje.create')">
             <Button icon="pi pi-plus" label="Crear" raised />
           </Link>
-          </div>
+          </div> -->
         </div>
         <div class="py-10">
           <DataTableComponent
@@ -26,7 +26,6 @@
           :columns="tableColumns"
           :perPage="6"
           @delete="deleteRow"
-          :showButtonDelete="showButton"
           @edit="editRow"
           :showButtonEdit="showButton"
 

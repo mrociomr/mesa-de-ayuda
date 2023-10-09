@@ -9,64 +9,79 @@ use Inertia\Inertia;
 use App\Models\Equipo;
 use App\Models\TipoSolucion;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 
 class SolucionController extends Controller
 {
-    
+
     public function index(Request $request)
     {
-        $query = Solucion::query();
+        if (Auth::user()->can('solucion.index')) {
 
-        if ($request->has('id')) {
-            $nombreFilter = $request->input('id');
-            $query->where(function ($subquery) use ($nombreFilter) {
-                $subquery->orWhere('equipos', 'like', '%' . $nombreFilter . '%')
-                    ->orWhere('descripcion', 'like', '%' . $nombreFilter . '%')
-                    ->orWhere('estado', 'like', '%' . $nombreFilter . '%')
-                    ->orWhere('equipos', 'like', '%' . $nombreFilter . '%');
-            });
+            $query = Solucion::query();
+
+            if ($request->has('id')) {
+                $nombreFilter = $request->input('id');
+                $query->where(function ($subquery) use ($nombreFilter) {
+                    $subquery->orWhere('equipos', 'like', '%' . $nombreFilter . '%')
+                        ->orWhere('descripcion', 'like', '%' . $nombreFilter . '%')
+                        ->orWhere('estado', 'like', '%' . $nombreFilter . '%')
+                        ->orWhere('equipos', 'like', '%' . $nombreFilter . '%')
+                        ->orWhere('tipo_solucion.nombre', 'like', '%' . $nombreFilter . '%');
+
+                });
+            }
+
+
+            // $incidencia = $query->get();
+            $solucion = $query->with('incidencias', 'tipo_solucion')->get();
+            //$dependencia = $query->paginate(1);
+
+
+            $tableColumns = [
+                ['key' => 'id', 'label' => 'ID'],
+                ['key' => 'equipos', 'label' => 'Equipo'],
+                ['key' => 'tipo_solucion.nombre', 'label' => 'Tipo de solución'],
+                ['key' => 'descripcion', 'label' => 'Descripción'],
+                ['key' => 'estado', 'label' => 'Estado'],
+            ];
+
+            $incidenciasAtendidas = DB::table('solucions')
+                ->where('estado', 'Atendido')
+                ->count();
+
+            $incidenciasRechazadas = DB::table('solucions')
+                ->where('estado', 'Rechazado')
+                ->count();
+            // dd($solucion);
+            return Inertia::render('Solucion/Table', [
+                'solucion' => $solucion,
+                'tableColumns' => $tableColumns,
+                'incidenciasAtendidas' => $incidenciasAtendidas,
+                'incidenciasRechazadas' => $incidenciasRechazadas,
+            ]);
+        } else {
+            return redirect()->route('dashboard');
         }
-
-
-        // $incidencia = $query->get();
-        $solucion = $query->with('incidencias', 'tipo_solucion')->get();
-        //$dependencia = $query->paginate(1);
-
-
-        $tableColumns = [
-            ['key' => 'id', 'label' => 'ID'],
-            ['key' => 'equipos', 'label' => 'Equipo'],
-            ['key' => 'tipo_solucion.nombre', 'label' => 'Tipo de solución'],
-            ['key' => 'descripcion', 'label' => 'Descripción'],
-            ['key' => 'estado', 'label' => 'Estado'],
-        ];
-
-        $incidenciasAtendidas = DB::table('solucions')
-        ->where('estado', 'Atendido')
-        ->count();
-
-        $incidenciasRechazadas = DB::table('solucions')
-        ->where('estado', 'Rechazado')
-        ->count();
-       // dd($solucion);
-        return Inertia::render('Solucion/Table', [
-            'solucion' => $solucion,
-            'tableColumns' => $tableColumns,
-            'incidenciasAtendidas' => $incidenciasAtendidas,
-            'incidenciasRechazadas' => $incidenciasRechazadas,
-        ]);
     }
 
     public function create($rowId)
     {
-        $equipo = Equipo::all();
-        $tipoSolucion = TipoSolucion::all();
+        if (Auth::user()->can('solucion.create')) {
 
-        return Inertia::render('Solucion/Create', [
-            'tipoSolucion' => $tipoSolucion,
-            'rowsId' => $rowId, 
-        ]);
+            $equipo = Equipo::all();
+            $tipoSolucion = TipoSolucion::where('estado', 'Activo')->get();
+
+            $user = Auth::user();
+            return Inertia::render('Solucion/Create', [
+                'tipoSolucion' => $tipoSolucion,
+                'rowsId' => $rowId,
+                'user' => $user,
+            ]);
+        } else {
+            return redirect()->route('dashboard');
+        }
     }
     public function store(Request $request)
     {
@@ -76,6 +91,7 @@ class SolucionController extends Controller
             'equipos' => 'required|max:30|string',
             'tipo_solucion_id' => 'required',
             'incidencias_id' => 'required',
+            'atendido_por',
         ]);
 
         Solucion::create($request->all());
@@ -86,14 +102,19 @@ class SolucionController extends Controller
 
     public function edit(Solucion $solucion)
     {
-        $equipo = Equipo::all();
-        $tipoSolucion = TipoSolucion::all();
-        $solucion->load('oficina', 'tipo_problema');
-        //dd($incidencia);
-        return Inertia::render('Incidencia/Edit', [
-            'solucion' => $solucion,
-            'tipoSolucion' => $tipoSolucion
-        ]);
+        if (Auth::user()->can('solucion.edit')) {
+
+            $equipo = Equipo::all();
+            $tipoSolucion = TipoSolucion::where('estado', 'Activo')->get();
+            $solucion->load('oficina', 'tipo_problema');
+            //dd($incidencia);
+            return Inertia::render('Incidencia/Edit', [
+                'solucion' => $solucion,
+                'tipoSolucion' => $tipoSolucion
+            ]);
+        } else {
+            return redirect()->route('dashboard');
+        }
     }
 
 
@@ -120,8 +141,13 @@ class SolucionController extends Controller
 
     public function destroy($id)
     {
-        $solucion = Solucion::find($id);
-        $solucion->delete();
-        return redirect()->route('solucion.index');
+        if (Auth::user()->can('solucion.destroy')) {
+
+            $solucion = Solucion::find($id);
+            $solucion->delete();
+            return redirect()->route('solucion.index');
+        } else {
+            return redirect()->route('dashboard');
+        }
     }
 }

@@ -77,7 +77,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('users', UserController::class);
     //  Route::resource('/charts', ChartsController::class);
-    Route::get('/reporte/{mes?}', [ReporteController::class, 'index'])->name('reporte.index');
+    Route::get('/reporte/{year?}/{mes?}', [ReporteController::class, 'index'])->name('reporte.index');
 
   //  Route::resource('reporte', ReporteController::class);
 
@@ -90,20 +90,16 @@ Route::middleware('auth')->group(function () {
 Route::resource('mensaje', MensajeController::class);
 // routes/api.php
 
+Route::middleware(['auth:ayuda'])->group(function () {
+    Route::get('/ayuda', [AyudaController::class, 'create'])->name('ayuda.create');
+    Route::post('/ayuda', [AyudaController::class, 'store'])->name('ayuda.store');
+});
 
 Route::get('/loginAyuda', [AyudaLoginController::class, 'showLoginForm'])->name('ayuda.login');
 Route::post('/loginAyuda', [AyudaLoginController::class, 'login']);
 
-Route::get('/ayuda', [AyudaController::class, 'create'])
-    ->middleware(['auth:ayuda'])
-    ->name('ayuda.create');
-
-Route::middleware(['auth:ayuda'])->group(function () {
-    Route::get('/ayuda', [AyudaController::class, 'create'])->name('ayuda.create');
-    Route::post('/ayuda', [AyudaController::class, 'store'])->name('ayuda.store');
 
 
-});
 
 //    Route::get('/ayuda', [AyudaController::class, 'create'])->name('ayuda.create');
 //    Route::post('/ayuda', [AyudaController::class, 'store'])->name('ayuda.store');

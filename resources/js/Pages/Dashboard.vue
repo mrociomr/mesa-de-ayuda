@@ -7,17 +7,10 @@ import { Head, useForm, Link } from "@inertiajs/inertia-vue3";
 const showButton = ref(true);
 
 const toggleButton = () => {
-showButton.value = !showButton.value;
+  showButton.value = !showButton.value;
 };
-
-const id = ref();
 
 const form = useForm({});
-
-const solutionRow = (rowId) => {
-  //console.log("Aceptar row with ID:", rowId);
-  form.get(route("solucion.create", rowId));
-};
 
 const props = defineProps([
   "GrafPendSolu",
@@ -25,12 +18,16 @@ const props = defineProps([
   "datosDias",
   "datosSemana",
   "datosMes",
+  "resultadocatAR",
   "incidencias",
-  "tableColumns"
+  "tableColumns",
 ]);
-const cantidad_dia = (props?.datosDias[0]?.cantidad_incidencias) || 0;
-const cantidad_semana = (props?.datosSemana[0]?.cantidad_incidencias) || 0;
-const cantidad_mes = (props?.datosMes[0]?.cantidad_incidencias) || 0;
+
+console.log(props.resultadocatAR);
+
+const cantidad_dia = props?.datosDias[0]?.cantidad_incidencias || 0;
+const cantidad_semana = props?.datosSemana[0]?.cantidad_incidencias || 0;
+const cantidad_mes = props?.datosMes[0]?.cantidad_incidencias || 0;
 
 const getRandomColor = () => {
   const letters = "0123456789ABCDEF";
@@ -57,10 +54,12 @@ onMounted(() => {
   chartData.value = setChartData();
 
   chartData1.value = setChartData1();
+  chartData2.value = setChartData2();
   chartOptions1.value = setChartOptions1();
 });
 
 const chartData1 = ref();
+const chartData2 = ref();
 const chartOptions1 = ref();
 
 const setChartData1 = () => {
@@ -124,6 +123,29 @@ const chartOptions = ref({
   },
 });
 
+//Mes
+
+const meses = {
+  1: "Enero",
+  2: "Febrero",
+  3: "Marzo",
+  4: "Abril",
+  5: "Mayo",
+  6: "Junio",
+  7: "Julio",
+  8: "Agosto",
+  9: "Septiembre",
+  10: "Octubre",
+  11: "Noviembre",
+  12: "Diciembre",
+};
+
+const mesIncidenciaSolu = ref(props.GrafPendSolu?.[0]?.Mes || 0);
+
+const nombreMes = computed(() => meses[mesIncidenciaSolu.value]);
+
+//const mesInsicenciaSolu = props.GrafPendSolu[0].Mes;
+
 const setChartData = () => {
   const documentStyle = getComputedStyle(document.body);
   return {
@@ -131,8 +153,8 @@ const setChartData = () => {
     datasets: [
       {
         data: [
-          props.GrafPendSolu.incidencias_pendientes,
-          props.GrafPendSolu.soluciones_realizadas,
+          props.GrafPendSolu[0]?.incidencias_pendientes || 0,
+          props.GrafPendSolu[0]?.soluciones_realizadas || 0,
         ],
         backgroundColor: [
           documentStyle.getPropertyValue("--red-500"),
@@ -148,11 +170,40 @@ const setChartData = () => {
     ],
   };
 };
+
+// Incidencia Rechazadas y Atendida por mes
+const setChartData2 = () => {
+  const documentStyle = getComputedStyle(document.body);
+  return {
+    labels: ["Incidencias Atendidas", "Incidencias Rechazadas"],
+    datasets: [
+      {
+        data: [
+          props.resultadocatAR[0]?.Cantidad_Aceptada || 0,
+          props.resultadocatAR[0]?.Cantidad_Rechazada || 0,
+        ],
+        backgroundColor: [
+          documentStyle.getPropertyValue("--blue-500"),
+          documentStyle.getPropertyValue("--red-500"),
+        ],
+        hoverBackgroundColor: [
+          documentStyle.getPropertyValue("--blue-400"),
+          documentStyle.getPropertyValue("--red-400"),
+        ],
+      },
+    ],
+  };
+};
+
+
+const diasSemana = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+const fechaActual = new Date();
+const diaActual = diasSemana[fechaActual.getDay()];
+const nombreDiaActual = ref(diaActual);
 </script>
 
 
 <template>
-
   <AuthenticatedLayout>
     <template #header>
       <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -171,7 +222,7 @@ const setChartData = () => {
               >{{ cantidad_dia }}</span
             >
             <h3 class="text-base font-normal text-gray-500">
-              Incidencias del día
+              Incidencias del día {{ nombreDiaActual }}
             </h3>
           </div>
           <div
@@ -228,7 +279,7 @@ const setChartData = () => {
               >{{ cantidad_mes }}</span
             >
             <h3 class="text-base font-normal text-gray-500">
-              Incidencias del mes
+              Incidencias del mes {{ nombreMes }}
             </h3>
           </div>
           <div
@@ -254,55 +305,67 @@ const setChartData = () => {
       </div>
     </div>
 
-    <div class="w-full grid grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
-      <div class="bg-white shadow rounded-lg p-4 sm:p-6 xl:p-8 2xl:col-span-2">
+    <div class="w-full grid grid-cols-1 xl:grid-cols-3 4xl:grid-cols-2 gap-4">
+      <div class="bg-white shadow rounded-lg p-4 sm:p-6 xl:p-4 2xl:col-span-2">
         <div id="main-chart">
+          <div class="text-center">
+            <p class="text-2xl">El mes es: {{ nombreMes }}</p>
+          </div>
+
           <div class="card flex justify-content-center">
             <Chart
               type="pie"
               :data="chartData"
               :options="chartOptions"
-              class="w-full md:w-30rem"
-              
+              class="w-full md:w-20rem"
+            />
+          </div>
+          <div class="card flex justify-content-center">
+            <Chart
+              type="pie"
+              :data="chartData2"
+              :options="chartOptions"
+              class="w-full md:w-20rem"
             />
           </div>
         </div>
       </div>
-      <div class="bg-white shadow rounded-lg p-4 sm:p-6 xl:p-8">
-        <div class="mb-4 flex items-center justify-between">
-          <div>
-            <h3 class="text-lg font-bold text-gray-900 mb-2">
-              Últimas incidencias
-            </h3>
-            <span class="text-sm font-normal text-gray-500"
-              >Esta es la lista de incidencias más recientes</span
-            >
-          </div>
-          <div class="flex-shrink-0">
-            <a
-              href="/incidencia"
-              class="text-sm font-medium text-cyan-600 hover:bg-gray-100 rounded-lg p-2"
-              >Ver todo</a
-            >
-          </div>
-        </div>
-        <div class="flex flex-col mt-8">
-          <div class="overflow-x-auto rounded-lg">
-            <div class="align-middle inline-block min-w-full">
-              <div class="shadow overflow-hidden sm:rounded-lg">
-                <DataTableComponent
-                  :data="incidencias"
-                  :columns="tableColumns"
-                  :perPage="6"
-                  @solution="solutionRow"
-                  :showButtonSolution="showButton"
-                >
-                </DataTableComponent>
-              </div>
-            </div>
-          </div>
+
+      <div class="bg-white shadow rounded-lg p-4 sm:p-6 xl:p-4 1xl:col-span-2">
+  <div class="mb-4 flex items-center justify-between">
+    <div>
+      <h3 class="text-lg font-bold text-gray-900 mb-2">
+        Últimas incidencias
+      </h3>
+      <span class="text-sm font-normal text-gray-500">
+        Esta es la lista de incidencias más recientes
+      </span>
+    </div>
+    <div class="flex-shrink-0">
+      <a
+        href="/incidencia"
+        class="text-sm font-medium text-cyan-600 hover:bg-gray-100 rounded-lg p-2"
+      >Ver todo</a>
+    </div>
+  </div>
+  <div class="flex flex-col mt-8">
+    <div class="overflow-x-auto rounded-lg">
+      <div class="align-middle inline-block min-w-full">
+        <div class="shadow overflow-hidden sm:rounded-lg">
+          <DataTableComponent
+            :data="incidencias"
+            :columns="tableColumns"
+            :perPage="6"
+            @solution="solutionRow"
+            :showButtonSolution="showButton"
+          >
+          </DataTableComponent>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
     </div>
     <!-- <div class="bg-white shadow rounded-lg p-10 sm:p-8 xl:p-12">
       <div class="card">

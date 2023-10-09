@@ -8,42 +8,52 @@ use App\Models\Sede;
 use App\Models\Dependencia;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 
 class OficinaController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Oficina::query();
+        if (Auth::user()->can('oficina.index')) {
 
-        if($request->has('nombre')){
-            $nombreFilter = $request->input('nombre');
-            $query->where('nombre', 'like', '%'. $nombreFilter .'%');
+            $query = Oficina::query();
+
+            if ($request->has('nombre')) {
+                $nombreFilter = $request->input('nombre');
+                $query->where('nombre', 'like', '%' . $nombreFilter . '%');
+            }
+
+            // $incidencia = $query->get();
+            $oficina = $query->with('sede', 'dependencia')->get();
+
+            //$dependencia = $query->paginate(1);
+
+            $tableColumns = [
+                ['key' => 'id', 'label' => 'ID'],
+                ['key' => 'nombre', 'label' => 'Oficina'],
+                ['key' => 'sede.nombre', 'label' => 'Sede'],
+                ['key' => 'dependencia.nombre', 'label' => 'Dependencia'],
+                ['key' => 'estado', 'label' => 'Estado'],
+            ];
+
+            // dd($incidencia);
+            return Inertia::render('Oficina/Table', [
+                'oficina' => $oficina,
+                'tableColumns' => $tableColumns,
+
+            ]);
+
+        } else {
+            return redirect()->route('dashboard');
         }
 
-        // $incidencia = $query->get();
-        $oficina = $query->with('sede', 'dependencia')->get();
-
-        //$dependencia = $query->paginate(1);
-
-        $tableColumns = [
-            ['key' => 'id', 'label' => 'ID'],
-            ['key' => 'nombre', 'label' => 'Oficina'],
-            ['key' => 'sede.nombre', 'label' => 'Sede'],
-            ['key' => 'dependencia.nombre', 'label' => 'Dependencia'],
-            ['key' => 'estado', 'label' => 'Estado'],
-        ];
-
-        // dd($incidencia);
-        return Inertia::render('Oficina/Table', [
-            'oficina' => $oficina,
-            'tableColumns' => $tableColumns,
-
-        ]);
     }
 
-    public function show($id){
+    public function show($id)
+    {
         $oficina = Oficina::find($id);
 
         $data = [
@@ -52,7 +62,8 @@ class OficinaController extends Controller
             $oficina->dependencia
         ];
 
-        return Inertia::render('Oficina/Show',
+        return Inertia::render(
+            'Oficina/Show',
             ['data' => $data]
         );
 
@@ -61,14 +72,21 @@ class OficinaController extends Controller
 
     public function create()
     {
-        $sedes = Sede::all();
-        $dependencias = Dependencia::all();
+        if (Auth::user()->can('oficina.create')) {
 
-        //dd($oficinas);
-        return Inertia::render('Oficina/Create', [
-            'sedes' => $sedes,
-            'dependencias' => $dependencias,
-        ]);
+
+            $sedes = Sede::where('estado', 'Activo')->get();
+
+            $dependencias = Dependencia::all();
+
+            //dd($oficinas);
+            return Inertia::render('Oficina/Create', [
+                'sedes' => $sedes,
+                'dependencias' => $dependencias,
+            ]);
+        } else {
+            return redirect()->route('dashboard');
+        }
     }
 
     public function store(Request $request)
@@ -85,27 +103,34 @@ class OficinaController extends Controller
         ]);
 
         $data = $request->all();
-        $data['password'] = Hash::make($request->input('password'));
+        $data['password'] = Crypt::encrypt($request->input('password'));
 
         Oficina::create($data);
 
-        return redirect()->route('oficina.index')->with('message','Oficina creada');
+        return redirect()->route('oficina.index')->with('message', 'Oficina creada');
         //return Inertia::location(route('oficina.index'));
     }
 
     public function edit(Oficina $oficina)
     {
-        $sedes = Sede::all();
-        $dependencias = Dependencia::all();
+        if (Auth::user()->can('oficina.edit')) {
 
-        $oficina->load('sede', 'dependencia');
-        //dd($incidencia);
-        return Inertia::render('Oficina/Edit', [
-            'oficina' => $oficina,
-            'sede' => $sedes,
-            'dependencia' => $dependencias,
+            $sedes = Sede::all();
+            $dependencias = Dependencia::all();
 
-        ]);
+            $passwordOriginal = decrypt($oficina->password);
+
+            $oficina->load('sede', 'dependencia');
+            //dd($passwordOriginal);
+            return Inertia::render('Oficina/Edit', [
+                'oficina' => $oficina,
+                'sede' => $sedes,
+                'dependencia' => $dependencias,
+                'passwordOriginal' => $passwordOriginal,
+            ]);
+        } else {
+            return redirect()->route('dashboard');
+        }
     }
 
     public function update(Request $request, Oficina $oficina)
@@ -131,9 +156,12 @@ class OficinaController extends Controller
             'password' => 'required'
         ]);
 
+
         if ($request->has('password')) {
-            // Hashear la nueva contraseña antes de actualizarla
-            $request->merge(['password' => Hash::make($request->input('password'))]);
+
+            $request->merge(['password' => Crypt::encrypt($request->input('password'))]);
+        } else {
+            unset($request['password']);
         }
 
         $oficina->update($request->all());
@@ -144,10 +172,15 @@ class OficinaController extends Controller
 
     public function destroy($id)
     {
-        $oficina = Oficina::find($id);
-        $oficina->delete();
+        if (Auth::user()->can('oficina.destroy')) {
 
-        return redirect()->route('oficina.index');
+            $oficina = Oficina::find($id);
+            $oficina->delete();
+
+            return redirect()->route('oficina.index');
+        } else {
+            return redirect()->route('dashboard');
+        }
         //return Inertia::location(route('oficina.index'));
     }
 }

@@ -38,7 +38,7 @@ const updateform = () => {
             <p
               class="text-xl text-center font-semibold text-gray-600 py-4 uppercase"
             >
-              Crear nueva key
+              Editar  key
             </p>
             <form @submit.prevent="updateform" class="mt-6 space-y-6">
               <div class="mb-6">
@@ -92,7 +92,7 @@ const updateform = () => {
                   :disabled="form.processing"
                   :class="{ 'opacity-25': form.processing }"
                 >
-                  Crear
+                  Guardar
                 </button>
               </div>
             </form>

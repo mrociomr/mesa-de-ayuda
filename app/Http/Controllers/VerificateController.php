@@ -15,12 +15,12 @@ class VerificateController extends Controller
         $user = Auth::user();
 
         // Obtener roles y permisos del usuario
-        //$userRoles = $user->getRoleNames();
-        //$userPermissions = $user->getAllPermissions()->toArray(); // Convierte a una matriz
+        $userRoles = $user->getRoleNames();
+        $userPermissions = $user->getAllPermissions()->toArray(); // Convierte a una matriz
 
         return [
-            //'userRoles' => $userRoles,
-            //'userPermissions' => $userPermissions,
+            'userRoles' => $userRoles,
+            'userPermissions' => $userPermissions,
         ];
     }
 

@@ -4,10 +4,17 @@ import { Head } from "@inertiajs/inertia-vue3";
 import { useForm } from "@inertiajs/inertia-vue3";
 import { Inertia } from "@inertiajs/inertia";
 
-
 const props = defineProps({
   oficinas: Array,
+  diaSemana: Number, // Cambiar a Number
+  horaActual: String, // Cambiar a String
 });
+
+const diaSemana = ref(props.diaSemana);
+const horaActual = ref(props.horaActual);
+
+console.log(props.diaSemana);
+console.log(props.horaActual);
 
 const form = useForm({
   nombre: null,
@@ -21,12 +28,13 @@ const createForm = async () => {
 </script>
 <template>
   <Head title="Login" />
-  <div
+  <div 
     class="fondo min-h-screen flex justify-center bg-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-500 bg-no-repeat bg-cover relative items-center"
     style="
       background-image: url(https://ojoalclima.com/wp-content/uploads/2022/07/20-Lago-Titicaca.jpg);
-      "
+    "
   >
+  
     <div class="absolute bg-black opacity-60 inset-0 z-0"></div>
     <div
       class="max-w-md w-full space-y-8 p-10 bg-white rounded-xl shadow-lg z-10"
@@ -37,7 +45,7 @@ const createForm = async () => {
             <div class="w-12 h-12 mr-4 flex-none rounded-xl overflow-hidden">
               <img
                 class="w-10 h-15 mr-4 object-cover"
-                src="/images/Escudo_de_Puno.png" 
+                src="/images/Escudo_de_Puno.png"
                 alt="Logo del municipio de Puno"
               />
             </div>
@@ -48,7 +56,19 @@ const createForm = async () => {
               <p class="text-sm mr-auto">OFICINA DE TECNOLOGÍA INFORMÁTICA</p>
             </div>
           </div>
-          <div class="mt-5">
+          <div v-if="diaSemana == 6 || diaSemana == 7">
+            <p class="text-red-500 text-2xl text-center font-semibold">
+              Lo sentimos, no atendemos los fines de semana.
+            </p>
+          </div>
+          <div v-else-if="horaActual < '08:00' || horaActual >= '17:00'">
+            <p class="text-red-500 text-2xl text-center font-semibold">
+              Lo sentimos, estamos fuera del horario. La atención es de (8:00 AM - 5:00
+              PM).
+            </p>
+          </div>
+
+          <div v-else class="mt-5">
             <div class="form">
               <div class="md:space-y-2 mb-3">
                 <p class="text-sm text-center font-semibold text-gray-600">
@@ -119,7 +139,6 @@ const createForm = async () => {
           </div>
         </div>
       </div>
-      <Chatbot />
     </div>
   </div>
 </template>

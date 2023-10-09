@@ -16,12 +16,13 @@ class AyudaController extends Controller
 {
     public function create()
     {
-        $oficinas = Oficina::all();
-        $tiposProblema = TipoProblema::all();
+        $oficinas = Oficina::where('estado', 'Activo')->get();
+        $tiposProblema = TipoProblema::where('estado', 'Activo')->get();
         $incidencia = Incidencia::with('oficina', 'tipo_problema')->first(); // Cambiar 'first' si deseas cargar una incidencia específica
-
+        $incidenciaID = Incidencia::latest('id')->first();
         //dd($oficinas);
         return Inertia::render('Incidencia/Form', [
+            'incidenciaID'=> $incidenciaID,
             'incidencia' => $incidencia,
             'oficinas' => $oficinas,
             'tiposProblema' => $tiposProblema,
@@ -38,22 +39,24 @@ class AyudaController extends Controller
             'otros' => 'required_if:tipo_problema_id,Otros',
         ]);
 
-
         $message = $request->input('message');
 
         $id_users = KeysMensaje::all()->pluck('number_key');
         // $token = TokenMensaje::all()->pluck('name_token');
         $token = TokenMensaje::first()->name_token;
 
+
         // Obtiene el mensaje desde la solicitud
         if (Incidencia::create($request->all())) {
             // Itera sobre los usuarios y envía un mensaje a cada uno
+            if($id_users  || $token) {
             foreach ($id_users as $id_user) {
                 $url = "https://api.telegram.org/bot" . $token . "/sendMessage?chat_id=" . $id_user . "&text=" . $message . '😊';
 
                 // Envía el mensaje a este usuario
                 Http::post($url);
             }
+        }
         } else {
 
         }
@@ -67,7 +70,9 @@ class AyudaController extends Controller
         /*$request->path();
         Auth::logout();
         */
-        return redirect()->route('ayuda.login');
+        Auth::guard('ayuda')->logout();
+
+        return redirect()->route('ayuda.login')->with('success', 'El formulario se ha enviado con éxito.');
     }
 
 

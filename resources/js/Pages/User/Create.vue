@@ -15,7 +15,7 @@ const form = useForm({
   email: null,
   password: null,
   prioridad: null,
-  role_id: null,
+  rolName: null,
 });
 console.log(form.dependencia_id)
 
@@ -37,7 +37,7 @@ const createForm = () => {
             <div class="card flex justify-content-center">
               <Link :href="route('users.index')">
                 <Button
-                icon="pi pi-angle-left" 
+                icon="pi pi-angle-left"
                 label="Atrás" text />
               </Link>
              </div>
@@ -62,7 +62,7 @@ const createForm = () => {
                     {{ form.errors.name }}
                   </div>
                 </div>
-  
+
                 <div class="mb-6">
                   <label
                     for="email"
@@ -81,23 +81,23 @@ const createForm = () => {
                     {{ form.errors.email }}
                   </div>
                 </div>
-  
+
                 <div class="mb-6">
                   <label
                     for="role_id"
                     class="block uppercase tracking-wide text-gray-900 text-xs after:content-['*'] after:ml-0.5 after:text-red-500 font-bold mb-2"
                     >Rol</label
                   >
-                  <MultiSelect 
-                  v-model="form.role_id" 
-                  display="chip" 
-                  :options="roles" 
-                  optionLabel="name" 
-                  optionValue="id"
-                  placeholder="Seleccione una o más opciones"
-                  :maxSelectedLabels="3" 
-                  class="w-full md:w-20rem" />
-          
+                  <Dropdown
+                  v-model="form.rolName"
+                  :options="roles"
+                  optionLabel="name"
+                  optionValue="name"
+                  placeholder="Seleccione un rol"
+                  class="w-full md:w-14rem"
+                  showClear
+                />
+
                   <!--
                 <v-select
                     class="bg-gray-50 border-gray-300 md:w-14rem  text-gray-500 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
@@ -107,15 +107,15 @@ const createForm = () => {
                     :value="form.sede_id"
                     :reduce="(tipo) => tipo.id"
                     placeholder="Seleccione una opción"
-  
+
                   ></v-select>
                   -->
-  
-                  <div v-if="form.errors.role_id" class="text-sm text-red-600">
-                    {{ form.errors.role_id }}
+
+                  <div v-if="form.errors.rolName" class="text-sm text-red-600">
+                    {{ form.errors.rolName }}
                   </div>
                 </div>
-  
+
                 <div class="mb-6">
                   <label
                     for="password"
@@ -132,7 +132,7 @@ const createForm = () => {
                     placeholder="Ingrese una contraseña"
                   />
                   </div>
-  
+
                   <div v-if="form.errors.password" class="text-sm text-red-600">
                     {{ form.errors.password }}
                   </div>

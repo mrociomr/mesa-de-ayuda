@@ -45,7 +45,7 @@ const createForm = () => {
             <div class="card flex justify-content-center">
               <Link :href="route('oficina.index')">
                 <Button
-                icon="pi pi-angle-left" 
+                icon="pi pi-angle-left"
                 label="Atrás" text />
               </Link>
              </div>
@@ -69,7 +69,7 @@ const createForm = () => {
                   <div v-if="form.errors.nombre" class="text-sm text-red-600">
                     {{ form.errors.nombre }}
                   </div>
-                  
+
                 </div>
                 <div class="mb-6">
                   <label
@@ -89,7 +89,7 @@ const createForm = () => {
                     {{ form.errors.abreviatura }}
                   </div>
                 </div>
-  
+
                 <div class="mb-6">
                   <label
                     for="nivel"
@@ -108,7 +108,7 @@ const createForm = () => {
                     {{ form.errors.nivel }}
                   </div>
                 </div>
-  
+
                 <div class="mb-6">
                   <label
                     for="prioridad"
@@ -127,7 +127,7 @@ const createForm = () => {
                     {{ form.errors.prioridad }}
                   </div>
                 </div>
-  
+
                 <div class="mb-6">
                   <label
                     for="estado"
@@ -145,7 +145,7 @@ const createForm = () => {
                     {{ form.errors.estado }}
                   </div>
                 </div>
-  
+
                 <div class="mb-6">
                   <label
                     for="sede_id"
@@ -170,22 +170,22 @@ const createForm = () => {
                     :value="form.sede_id"
                     :reduce="(tipo) => tipo.id"
                     placeholder="Seleccione una opción"
-  
+
                   ></v-select>
                   -->
-  
+
                   <div v-if="form.errors.sede_id" class="text-sm text-red-600">
                     {{ form.errors.sede_id }}
                   </div>
                 </div>
-  
+
                 <div class="mb-6">
                   <label
                     for="dependencia_id"
                     class="block uppercase tracking-wide text-gray-700 text-xs after:content-['*'] after:ml-0.5 after:text-red-500 font-bold mb-2"
                     >Dependencia</label
                   >
-  
+
                   <Dropdown
                   v-model="form.dependencia_id"
                   :options="dependencias"
@@ -206,12 +206,12 @@ const createForm = () => {
                     :reduce="(tipo) => tipo.id"
                   ></v-select>
                   -->
-  
+
                   <div v-if="form.errors.dependencia_id" class="text-sm text-red-600">
                     {{ form.errors.dependencia_id }}
                   </div>
                 </div>
-  
+
                 <div class="mb-6">
                   <label
                     for="password_id"
@@ -228,7 +228,7 @@ const createForm = () => {
                     placeholder="Ingrese una contraseña"
                   />
                   </div>
-  
+
                   <div v-if="form.errors.password" class="text-sm text-red-600">
                     {{ form.errors.password }}
                   </div>

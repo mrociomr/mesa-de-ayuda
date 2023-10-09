@@ -16,6 +16,7 @@ return new class extends Migration
             $table->longText('descripcion');
             $table->enum('estado', ['Atendido', 'Rechazado']);
             $table->string('equipos');
+            $table->string('atendido_por');
             //$table->foreignId('equipo_id')->constrained('equipos')->onDelete('cascade');
             $table->foreignId('tipo_solucion_id')->constrained('tipo_solucions')->onDelete('cascade');
             $table->foreignId('incidencias_id')->constrained('incidencias')->onDelete('cascade');

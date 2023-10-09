@@ -5,39 +5,51 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\KeysMensaje;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 class KeysMensajeController extends Controller
 {
-    //
-    public function index(Request $request){
-        $query = KeysMensaje::query();
+    //key-mensaje
+    public function index(Request $request)
+    {
+        if (Auth::user()->can('key-mensaje.index')) {
 
-        if($request->has('name')) {
-            $nombreFilter = $request->input('name');
-            $query->where('name', 'like', '%' . $nombreFilter . '%');
+            $query = KeysMensaje::query();
+
+            if ($request->has('name')) {
+                $nombreFilter = $request->input('name');
+                $query->where('name', 'like', '%' . $nombreFilter . '%');
+            }
+
+            $keyMensaje = $query->get();
+
+            $tableColumns = [
+                ['key' => 'id', 'label' => 'ID'],
+                ['key' => 'name', 'label' => 'name'],
+                ['key' => 'number_key', 'label' => 'Key_user'],
+            ];
+
+
+            return Inertia::render('KeyMensaje/Table', [
+                'keyMensaje' => $keyMensaje,
+                'tableColumns' => $tableColumns,
+            ]);
+        } else {
+            return redirect()->route('dashboard');
         }
-
-        $keyMensaje = $query->get();
-
-        $tableColumns = [
-            ['key' => 'id', 'label' => 'ID'],
-            ['key' => 'name', 'label' => 'name'],
-            ['key' => 'number_key', 'label' => 'Key_user'],
-        ];
-
-
-        return Inertia::render('KeyMensaje/Table', [
-            'keyMensaje' => $keyMensaje,
-            'tableColumns' => $tableColumns,
-        ]);
-
     }
 
-    public function create(){
-        return Inertia::render('KeyMensaje/Create');
+    public function create()
+    {
+        if (Auth::user()->can('key-mensaje.create')) {
+            return Inertia::render('KeyMensaje/Create');
+        } else {
+            return redirect()->route('dashboard');
+        }
     }
 
-    public function store(Request $request){
+    public function store(Request $request)
+    {
 
         $request->validate([
             'name' => 'required',
@@ -50,23 +62,31 @@ class KeysMensajeController extends Controller
         //return Inertia::location(route('tipo-problema.index'));
     }
 
-    public function edit($id) {
-        // Obtén los datos del modelo KeysMensaje directamente
-        $keysMensaje = KeysMensaje::find($id);
+    public function edit($id)
+    {
+        if (Auth::user()->can('key-mensaje.edit')) {
 
-        if (!$keysMensaje) {
-            // Maneja el caso en el que no se encuentra el registro
-            // Puedes redirigir a una página de error o hacer lo que necesites.
+            // Obtén los datos del modelo KeysMensaje directamente
+            $keysMensaje = KeysMensaje::find($id);
+
+            if (!$keysMensaje) {
+                // Maneja el caso en el que no se encuentra el registro
+                // Puedes redirigir a una página de error o hacer lo que necesites.
+            }
+
+            return Inertia::render('KeyMensaje/Edit', [
+                'keysMensaje' => $keysMensaje,
+            ]);
+        } else {
+            return redirect()->route('dashboard');
         }
 
-        return Inertia::render('KeyMensaje/Edit', [
-            'keysMensaje' => $keysMensaje,
-        ]);
     }
 
 
 
-    public function update(Request $request, $id) {
+    public function update(Request $request, $id)
+    {
         $request->validate([
             'name' => 'required',
             'number_key' => 'required',
@@ -85,11 +105,17 @@ class KeysMensajeController extends Controller
     }
 
 
-    public function destroy($id){
-        $keyMensaje = KeysMensaje::find($id);
-        $keyMensaje->delete();
+    public function destroy($id)
+    {
+        if (Auth::user()->can('key-mensaje.destroy')) {
 
-        return redirect()->route('key-mensaje.index');
+            $keyMensaje = KeysMensaje::find($id);
+            $keyMensaje->delete();
+
+            return redirect()->route('key-mensaje.index');
+        } else {
+            return redirect()->route('dashboard');
+        }
     }
 
 }

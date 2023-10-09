@@ -10,6 +10,7 @@ const props = defineProps({
   oficina: Object,
   sede: Array,
   dependencia: Array,
+  passwordOriginal: String,
 });
 
 const form = useForm({
@@ -20,8 +21,7 @@ const form = useForm({
   estado: props.oficina.estado,
   sede_id: props.oficina.sede.id,
   dependencia_id: props.oficina.dependencia.id,
-  password: props.oficina.password
-
+  password : props.passwordOriginal,
 });
 
 const estados = ref([ 'Activo' ,'Inactivo']);
@@ -41,7 +41,7 @@ const updateForm = () => {
             <div class="card flex justify-content-center">
               <Link :href="route('oficina.index')">
                 <Button
-                icon="pi pi-angle-left" 
+                icon="pi pi-angle-left"
                 label="Atrás" text />
               </Link>
              </div>
@@ -66,7 +66,7 @@ const updateForm = () => {
                     {{ form.errors.nombre }}
                   </div>
                 </div>
-  
+
                 <div class="mb-6">
                   <label
                     for="abreviatura"
@@ -85,7 +85,7 @@ const updateForm = () => {
                     {{ form.errors.abreviatura }}
                   </div>
                 </div>
-  
+
                 <div class="mb-6">
                   <label
                     for="nivel"
@@ -104,7 +104,7 @@ const updateForm = () => {
                     {{ form.errors.nivel }}
                   </div>
                 </div>
-  
+
                 <div class="mb-6">
                   <label
                     for="prioridad"
@@ -123,14 +123,14 @@ const updateForm = () => {
                     {{ form.errors.prioridad }}
                   </div>
                 </div>
-  
+
                 <div class="mb-6">
                   <label
                     for="estado"
                     class="block uppercase tracking-wide text-gray-700 text-xs after:content-['*'] after:ml-0.5 after:text-red-500 font-bold mb-2"
                     >Estado</label
                   >
-  
+
                   <Dropdown
                     v-model="form.estado"
                     :options="estados"
@@ -142,9 +142,9 @@ const updateForm = () => {
                     {{ form.errors.estado }}
                   </div>
                 </div>
-  
+
                 <!-- DESDE AQUI -->
-  
+
                 <div class="mb-6">
                   <label
                     for="sede_id"
@@ -155,13 +155,13 @@ const updateForm = () => {
                   <v-select
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                     :options="sede"
-  
+
                     label="nombre"
                     v-model="form.sede_id"
                     :value="form.sede_id"
                     :reduce="(tipo) => tipo.id"
                   ></v-select>
-                 --> 
+                 -->
                  <Dropdown
                  v-model="form.sede_id"
                  :options="sede"
@@ -170,7 +170,7 @@ const updateForm = () => {
                  placeholder="Seleccione una sede"
                  class="w-full md:w-14rem"
                  showClear />
-  
+
                   <div v-if="form.errors.sede_id" class="text-sm text-red-600">
                     {{ form.errors.sede_id }}
                   </div>
@@ -185,7 +185,7 @@ const updateForm = () => {
                   <v-select
                   :options="sede"
                   class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-  
+
                     label="nombre"
                     v-model="form.sede_id"
                     :value="form.sede_id"
@@ -197,7 +197,7 @@ const updateForm = () => {
                 </div>
                  HASTA AQUI-->
                 <!-- Other input fields... -->
-  
+
                 <div class="mb-6">
                   <label
                     for="dependencia_id"
@@ -216,21 +216,22 @@ const updateForm = () => {
                     <v-select
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                     :options="dependencia"
-  
+
                     label="nombre"
                     v-model="form.dependencia_id"
                     :value="form.dependencia_id"
                     :reduce="(tipo) => tipo.id"
                   ></v-select>
                   -->
-                  
+
                   <div v-if="form.errors.dependencia_id" class="text-sm text-red-600">
                     {{ form.errors.dependencia_id }}
                   </div>
                 </div>
+
                 <div class="mb-6">
                   <label
-                    for="dependencia_id"
+                    for="password"
                     class="block uppercase tracking-wide text-gray-700 text-xs after:content-['*'] after:ml-0.5 after:text-red-500 font-bold mb-2"
                     >Contraseña</label
                   >
@@ -244,14 +245,15 @@ const updateForm = () => {
                     placeholder="Ingrese una contraseña"
                   />
                   </div>
-  
+
                   <div v-if="form.errors.password" class="text-sm text-red-600">
                     {{ form.errors.password }}
                   </div>
+
                 </div>
-              
+
               </div>
-             
+
               <div class="flex">
                 <button
                 type="submit"
@@ -270,5 +272,3 @@ const updateForm = () => {
     </div>
   </AuthenticatedLayout>
 </template>
-
-

@@ -6,36 +6,41 @@ use App\Models\TipoSolucion;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 
 class TipoSolucionController extends Controller
 {
-    
+
     public function index(Request $request)
     {
-        $query = TipoSolucion::query();
+        if (Auth::user()->can('tipo-problema.index')) {
+            $query = TipoSolucion::query();
 
-        if ($request->has('nombre')) {
-            $nombreFilter = $request->input('nombre');
-            $query->where(function ($subquery) use ($nombreFilter) {
-                $subquery->orWhere('nombre', 'like', '%' . $nombreFilter . '%')
-                    ->orWhere('estado', 'like', '%' . $nombreFilter . '%');
-            });
+            if ($request->has('nombre')) {
+                $nombreFilter = $request->input('nombre');
+                $query->where(function ($subquery) use ($nombreFilter) {
+                    $subquery->orWhere('nombre', 'like', '%' . $nombreFilter . '%')
+                        ->orWhere('estado', 'like', '%' . $nombreFilter . '%');
+                });
+            }
+
+            $tipoSolucion = $query->get();
+
+            $tableColumns = [
+                ['key' => 'id', 'label' => 'ID'],
+                ['key' => 'nombre', 'label' => 'Nombre'],
+                ['key' => 'estado', 'label' => 'Estado'],
+
+            ];
+
+            return Inertia::render('TipoSolucion/Table', [
+                'tipoSolucion' => $tipoSolucion,
+                'tableColumns' => $tableColumns,
+            ]);
+        } else {
+            return redirect()->route('dashboard');
         }
-
-        $tipoSolucion = $query->get();
-
-        $tableColumns = [
-            ['key' => 'id', 'label' => 'ID'],
-            ['key' => 'nombre', 'label' => 'Nombre'],          
-            ['key' => 'estado', 'label' => 'Estado'],
-
-        ];
-
-        return Inertia::render('TipoSolucion/Table', [
-            'tipoSolucion' => $tipoSolucion,
-            'tableColumns' => $tableColumns,
-        ]);
     }
 
     public function show($id)
@@ -51,7 +56,12 @@ class TipoSolucionController extends Controller
 
     public function create()
     {
-        return Inertia::render('TipoSolucion/Create');
+        if (Auth::user()->can('tipo-problema.create')) {
+
+            return Inertia::render('TipoSolucion/Create');
+        } else {
+            return redirect()->route('dashboard');
+        }
     }
 
     public function store(Request $request)
@@ -70,9 +80,14 @@ class TipoSolucionController extends Controller
 
     public function edit(TipoSolucion $tipoSolucion)
     {
-        return Inertia::render('TipoSolucion/Edit', [
-            'tipoSolucion' => $tipoSolucion,
-        ]);
+        if (Auth::user()->can('tipo-problema.edit')) {
+
+            return Inertia::render('TipoSolucion/Edit', [
+                'tipoSolucion' => $tipoSolucion,
+            ]);
+        } else {
+            return redirect()->route('dashboard');
+        }
     }
 
 
@@ -87,7 +102,7 @@ class TipoSolucionController extends Controller
             ],
             'estado' => 'required',
         ]);
-        
+
 
         $tipoSolucion->update($request->all());
 
@@ -99,11 +114,15 @@ class TipoSolucionController extends Controller
 
     public function destroy($id)
     {
-        $tipoSolucion = TipoSolucion::find($id);
-        $tipoSolucion->delete();
+        if (Auth::user()->can('tipo-problema.destroy')) {
 
-        return redirect()->route('tipo-solucion.index');
-        //return Inertia::location(route('tipo-solucion.index'));
+            $tipoSolucion = TipoSolucion::find($id);
+            $tipoSolucion->delete();
 
+            return redirect()->route('tipo-solucion.index');
+            //return Inertia::location(route('tipo-solucion.index'));
+        } else {
+            return redirect()->route('dashboard');
+        }
     }
 }

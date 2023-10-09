@@ -14,11 +14,10 @@ use Illuminate\Validation\Rule;
 
 class DependenciaController extends Controller
 {
-
-
     public function index(Request $request)
     {
-       // if (Auth::user()->can('dependencia.index')) {
+
+        if (Auth::user()->can('dependencia.index')) {
             $query = Dependencia::query();
 
             if ($request->has('nombre')) {
@@ -40,19 +39,24 @@ class DependenciaController extends Controller
                 'tableColumns' => $tableColumns,
             ]);
 
-      //  } else {
-      //      return redirect()->route('dashboard');
-      //  }
+        } else {
+            return redirect()->route('dashboard');
+        }
     }
 
     public function create()
     {
+        if (Auth::user()->can('dependencia.create')) {
 
-        return Inertia::render('Dependencia/Create');
+            return Inertia::render('Dependencia/Create');
+        } else {
+            return redirect()->route('dashboard');
+        }
     }
 
     public function store(Request $request)
     {
+
         $request->validate([
             'nombre' => 'required|unique:dependencias|max:100',
         ]);
@@ -71,14 +75,20 @@ class DependenciaController extends Controller
     */
     public function edit(Dependencia $dependencia)
     {
-        return Inertia::render('Dependencia/Edit', [
-            'dependencias' => $dependencia,
-        ]);
+        if (Auth::user()->can('dependencia.edit')) {
+
+            return Inertia::render('Dependencia/Edit', [
+                'dependencias' => $dependencia,
+            ]);
+        } else {
+            return redirect()->route('dashboard');
+        }
     }
 
 
     public function update(Request $request, Dependencia $dependencia)
     {
+
         $request->validate([
             'nombre' => [
                 'required',
@@ -102,9 +112,14 @@ class DependenciaController extends Controller
 
     public function destroy($id)
     {
-        $dependencias = Dependencia::find($id);
-        $dependencias->delete();
-        return redirect()->route('dependencia.index');
+        if (Auth::user()->can('dependencia.destroy')) {
+
+            $dependencias = Dependencia::find($id);
+            $dependencias->delete();
+            return redirect()->route('dependencia.index');
+        } else {
+            return redirect()->route('dashboard');
+        }
         //return Inertia::location(route('dependencia.index'));
     }
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Oficina;
 use App\Models\TipoProblema;
 use App\Models\Incidencia;
+use App\Models\Solucion;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -82,11 +83,6 @@ class ChartsController extends Controller
             $finalData['datasets'][] = $dataset;
         }
 
-        $GrafPendSolu = DB::table('incidencias')
-            ->leftJoin('solucions', 'incidencias.id', '=', 'solucions.incidencias_id')
-            ->selectRaw('COUNT(DISTINCT incidencias.id) - COALESCE(COUNT(DISTINCT solucions.incidencias_id), 0) AS incidencias_pendientes')
-            ->selectRaw('COALESCE(COUNT(DISTINCT solucions.incidencias_id), 0) AS soluciones_realizadas')
-            ->first();
 
 
         $fechaActual = Carbon::now()->format('Y-m-d');
@@ -109,9 +105,33 @@ class ChartsController extends Controller
             ->whereRaw("DATE_FORMAT(created_at, '%Y-%m') = ?", [$mesActual])
             ->groupBy('mes')
             ->get();
+        /// cantidad aceptada  cantidad Rechazada
+        $mesActual = date('n'); // Obtiene el número del mes actual
 
+        $GrafPendSolu = DB::table('incidencias')
+            ->leftJoin('solucions', 'incidencias.id', '=', 'solucions.incidencias_id')
+            ->selectRaw('MONTH(incidencias.created_at) AS Mes')
+            ->selectRaw('COUNT(DISTINCT incidencias.id) - COALESCE(COUNT(DISTINCT solucions.incidencias_id), 0) AS incidencias_pendientes')
+            ->selectRaw('COALESCE(COUNT(DISTINCT solucions.incidencias_id), 0) AS soluciones_realizadas')
+            ->whereRaw('MONTH(incidencias.created_at) = ?', [$mesActual])
+            ->groupBy('Mes')
+            ->get();
+
+        $resultadocatAR = DB::table('solucions')
+            ->selectRaw('MONTH(created_at) AS Mes')
+            ->selectRaw('SUM(CASE WHEN estado = "Atendido" THEN 1 ELSE 0 END) AS Cantidad_Aceptada')
+            ->selectRaw('SUM(CASE WHEN estado = "Rechazado" THEN 1 ELSE 0 END) AS Cantidad_Rechazada')
+            ->whereRaw('MONTH(created_at) = ?', [$mesActual])
+            ->groupBy('Mes')
+            ->get();
+        ///
         $today = now()->toDateString(); // Obtiene la fecha actual en formato "Y-m-d"
         $incidencias = Incidencia::whereDate('created_at', '=', $today)
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('solucions')
+                    ->whereColumn('solucions.incidencias_id', 'incidencias.id');
+            })
             ->with('oficina', 'tipo_problema')
             ->get();
 
@@ -127,6 +147,7 @@ class ChartsController extends Controller
             'datosDias' => $datosDias,
             'datosSemana' => $datosSemana,
             'datosMes' => $datosMes,
+            'resultadocatAR' => $resultadocatAR,
             'incidencias' => $incidencias,
             'graficoData' => $finalData,
             'GrafPendSolu' => $GrafPendSolu,

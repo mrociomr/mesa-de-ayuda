@@ -1,14 +1,37 @@
 <script setup>
-import { ref, defineProps, computed } from "vue";
+import { ref, defineProps, computed, onBeforeUnmount } from "vue";
 import { useForm } from "@inertiajs/inertia-vue3";
 import { Head } from "@inertiajs/inertia-vue3";
 import { Inertia } from "@inertiajs/inertia";
 import Swal from "sweetalert2";
 
+const tiempoRestante = ref(120); // 2 minutos = 120 segundos
+
+const refrescarVista = () => {
+  let tiempo = 120; // 2 minutos = 120 segundos
+
+  const intervalId = setInterval(() => {
+    tiempo--;
+    tiempoRestante.value = tiempo;
+
+    if (tiempo === 0) {
+      clearInterval(intervalId);
+      location.reload();
+    }
+  }, 1000); // Actualiza cada 1 segundo
+};
+
+refrescarVista();
+
+onBeforeUnmount(() => {
+  clearInterval(timer);
+});
+
 const props = defineProps({
   dependencias: Object,
   oficinas: Array,
   tiposProblema: Array,
+  incidenciaID: Array,
 });
 
 const form = useForm({
@@ -21,8 +44,6 @@ const form = useForm({
   message: null,
 });
 
-const dninum = form.dni;
-console.log(dninum);
 const ConfirmDialog = () => {
   Swal.fire({
     title: "¿Está seguro que quiere enviar?",
@@ -37,25 +58,26 @@ const ConfirmDialog = () => {
     form.post(route("ayuda.store"));
 
     if (result.isConfirmed) {
-      if (!form.errors) {
-        Swal.fire(
-          "Error",
-          "Por favor, corrija los errores en el formulario antes de enviar.",
-          "error"
-        );
-      } else {
-        Swal.fire(
-          "Se envió correctamente",
-          `Su número de ticket es: ${form.id}`,
-          "success"
-        );
-      }
+      Swal.fire(
+        "Se envió correctamente",
+        `Su número de ticket es: ${
+          props.incidenciaID ? props.incidenciaID.id + 1 : 1
+        }`,
+        "success"
+      );
     }
   });
 };
 
 const areCamposRequeridosLlenos = () => {
-  return form.dni && form.celular && form.oficina_id && form.tipo_problema_id;
+  return (
+    form.dni && 
+    form.dni.length >= 8 && // Minimum 8 digits for dni
+    form.celular  && 
+    form.celular.length >= 9 && // Minimum 9 digits for celular
+    form.oficina_id && 
+    form.tipo_problema_id
+  );
 };
 
 /*const datosCompletos = computed(() => {
@@ -94,9 +116,15 @@ console.log(form.message);
 
 const mostrarInput = ref(false);
 
-const toggleInput = () => {
-  mostrarInput.value = !mostrarInput.value; // Cambia el estado de mostrarInput
-};
+const ifdatosOtros = computed(() => {
+  const tipoProblemaSeleccionado = form.tipo_problema_id
+    ? props.tiposProblema.find((tipo) => tipo.id === form.tipo_problema_id)
+        .nombre
+    : "No seleccionado";
+  return (
+    tipoProblemaSeleccionado === "Otros" || tipoProblemaSeleccionado === "otros"
+  );
+});
 
 const submitForms = () => {
   if (areCamposRequeridosLlenos()) {
@@ -106,13 +134,37 @@ const submitForms = () => {
   }
 };
 
+
+
+let validationErrorCelular = '';
+let validationErrorDNI = '';
+
+const validateCelular = () => {
+  // Realiza validaciones en tiempo real aquí
+  if (form.celular && form.celular.length !== 9) {
+    validationErrorCelular = 'El número de celular debe tener exactamente 9 dígitos.';
+  } else {
+    validationErrorCelular = '';
+  }
+};
+const validateDNI = () => {
+  if (form.dni && form.dni.length !== 8) {
+    validationErrorDNI = 'El número de DNI debe tener exactamente 8 dígitos.';
+  } else {
+    validationErrorDNI = '';
+  }
+};
+const toggleInput = () => {
+  mostrarInput.value = !mostrarInput.value; // Cambia el estado de mostrarInput
+};
+const formProcessing = ref(false);
+
 //  function showOtrosTextarea() {
 
 //      return this.form.tipo_problema_id === 2;
 //    };
 </script>
 <template>
-  <Head title="Mesa de Ayuda" />
   <div
     class="min-h-screen flex justify-center bg-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-500 bg-no-repeat bg-cover relative items-center"
     style="
@@ -129,7 +181,7 @@ const submitForms = () => {
             <div class="w-12 h-12 mr-4 flex-none rounded-xl overflow-hidden">
               <img
                 class="w-10 h-15 mr-4 object-cover"
-                src="/images/Escudo_de_Puno.png" 
+                src="/images/Escudo_de_Puno.png"
                 alt="Logo del municipio de Puno"
               />
             </div>
@@ -149,6 +201,9 @@ const submitForms = () => {
                 <p class="text-xl text-center font-semibold text-gray-600">
                   REGISTRE SU INCIDENCIA
                 </p>
+                <p class="text-red-600 text-center">
+                  Tiempo restante para la recarga: {{ tiempoRestante }} segundos
+                </p>
               </div>
               <form @submit.prevent="submitForms" class="mt-6 space-y-6">
                 <!-- DNI -->
@@ -160,6 +215,7 @@ const submitForms = () => {
                   >
 
                   <input
+                  @input="validateDNI"
                     type="text"
                     v-model="form.dni"
                     id="dni"
@@ -168,11 +224,18 @@ const submitForms = () => {
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                     placeholder="Ingrese su número de DNI"
                     maxlength="8"
+                    pattern="^[0-9]+$"
+
                   />
 
                   <div v-if="form.errors.dni" class="text-sm text-red-600">
                     {{ form.errors.dni }}
                   </div>
+                  <p 
+                  :class="{ 'text-red-500': validationErrorDNI }"
+
+                  v-if="validationErrorDNI">{{ validationErrorDNI }}</p>
+
                 </div>
                 <!-- CELULAR -->
                 <div class="mb-6">
@@ -181,18 +244,26 @@ const submitForms = () => {
                     class="block uppercase tracking-wide text-gray-700 text-sm after:content-['*'] after:ml-0.5 after:text-red-500 font-bold mb-2 font-sans"
                     >Celular</label
                   >
+
                   <input
                     type="text"
                     v-model="form.celular"
+                    @input="validateCelular"
                     id="celular"
                     name="celular"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                     placeholder="Ingrese su número de celular"
                     maxlength="9"
+                    pattern="^[0-9]+$"
+
                   />
                   <div v-if="form.errors.celular" class="text-sm text-red-600">
                     {{ form.errors.celular }}
                   </div>
+                  <p 
+                  :class="{ 'text-red-500': validationErrorCelular }"
+                   v-if="validationErrorCelular">{{ validationErrorCelular }}</p>
+
                 </div>
                 <!-- OFICINA -->
 
@@ -253,7 +324,7 @@ const submitForms = () => {
 
                   <div class="py-4">
                     <Textarea
-                      v-if="form.tipo_problema_id === 17"
+                      v-if="ifdatosOtros"
                       v-model="form.otros"
                       placeholder="Ingrese el detalle de su problema"
                       class="w-full md:w-14rem"

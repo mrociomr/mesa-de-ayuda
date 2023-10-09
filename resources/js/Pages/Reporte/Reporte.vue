@@ -1,20 +1,19 @@
 <template>
-  <Head title="Reportes" />
   <AuthenticatedLayout>
+    <Toast />
     <div
       class="bg-white shadow rounded-lg p-4 sm:p-6 xl:p-8 2xl:col-span-2 text-sm"
     >
       <div class="grid grid-rows-1 grid-flow-col">
         <div class="flex justify-start">
-          <span class="p-input-icon-left">
+          <!-- <span class="p-input-icon-left">
             <i class="pi pi-search" />
             <InputText
               v-model="nombreFilter"
               @input="applyFilter"
               placeholder="Buscar..."
             />
-          </span>
-          
+          </span> -->
         </div>
         <div class="flex justify-end">
           <Button
@@ -24,17 +23,62 @@
             raised
           />
         </div>
-        <div>
+    </div>
+
+        <div class="grid grid-cols-2 gap-4">
           <div>
-            <label for="mes">Selecciona un mes:</label>
-            <select v-model="selectedMonth" id="mes" @change="enviarMes">
-              <option value="9">Enero</option>
-              <option value="10">Febrero</option>
-              <!-- Agrega más opciones para otros meses -->
-            </select>
+            <div class="p-4">
+              <label for="año" class="block text-sm font-medium text-gray-700"
+                >Año:</label
+              >
+              <select
+                v-model="selectedYear"
+                id="año"
+                @change="enviarAño"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              >
+                <option value="2022">2022</option>
+                <option value="2023">2023</option>
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
+                <option value="2027">2027</option>
+                <option value="2028">2028</option>
+                <option value="2029">2029</option>
+                <option value="2030">2030</option>
+                <!-- Puedes seguir agregando opciones para años posteriores aquí -->
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <div class="p-4">
+              <label for="mes" class="block text-sm font-medium text-gray-700"
+                >Selecciona un mes:</label
+              >
+              <select
+                v-model="selectedMonth"
+                id="mes"
+                @change="enviarMes"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              >
+                <option value="1">Enero</option>
+                <option value="2">Febrero</option>
+                <option value="3">Marzo</option>
+                <option value="4">Abril</option>
+                <option value="5">Mayo</option>
+                <option value="6">Junio</option>
+                <option value="7">Julio</option>
+                <option value="8">Agosto</option>
+                <option value="9">Septiembre</option>
+                <option value="10">Octubre</option>
+                <option value="11">Noviembre</option>
+                <option value="12">Diciembre</option>
+              </select>
+            </div>
           </div>
         </div>
-      </div>
+
       <div class="py-10">
         <DataTableComponent
           :data="reporte"
@@ -60,15 +104,35 @@
         </div>
       </div>
     </div>
+
+    <br />
+    <div
+      class="bg-white shadow rounded-lg p-2 sm:p-4 xl:p-6 2xl:col-span-2 text-sm"
+    >
+      <div class="py-7">
+        <div
+          class="chart-container overflow-x-scroll overflow-y-scroll flex items-center justify-center"
+        >
+          <div class="chart-wrapper max-w-[900px] max-h-[900px]">
+            <Chart
+              type="polarArea"
+              :data="chartData2"
+              :options="chartOptions2"
+              class="w-full md:w-20rem"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
   </AuthenticatedLayout>
 </template>
 
 
   <script setup>
 import DataTableComponent from "@/Components/TablePrimeVue.vue";
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted,toRefs } from "vue";
 import { Head, useForm, Link } from "@inertiajs/vue3";
-
+import { useToast } from "primevue/usetoast";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Inertia } from "@inertiajs/inertia";
 
@@ -81,19 +145,44 @@ import { email } from "./email.js";
 
 const form = useForm({});
 
-const props = defineProps(["reporte", "tableColumns", "graficoData", "mess"]);
+const props = defineProps([
+  "reporte",
+  "tableColumns",
+  "graficoData",
+  "formattedDataCanProblems",
+  "mess",
+  "anisos",
+  "userAut",
+  "currentDate",
+  "year",
+  "month",
+  "currentTime"
+]);
 
-console.log(props.reporte)
+const nameUsuarioReport = props.userAut.name;
+const currentDate = props.currentDate;
+const year = props.year;
+const month = props.month;
+const currentTime = props.currentTime;
+
+const getMonthName = (month) => {
+  const months = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
+  return months[month - 1];
+};
+
 let datass;
 if (props.reporte && Array.isArray(props.reporte) && props.reporte.length > 0) {
   const columnNames = Object.keys(props.reporte[0]);
 
   // Crea un array de arrays que represente los datos en el formato deseado
-datass = [columnNames];
+  datass = [columnNames];
 
   // Recorre los datos y conviértelos en arrays
-  props.reporte.forEach(item => {
-    const rowData = columnNames.map(columnName => item[columnName]);
+  props.reporte.forEach((item) => {
+    const rowData = columnNames.map((columnName) => item[columnName]);
     datass.push(rowData);
   });
 
@@ -105,31 +194,36 @@ datass = [columnNames];
   console.error("El objeto props.reporte es undefined, null o vacío.");
 }
 
-console.log(datass);
 
-// const columnNames = Object.keys(props?.reporte[0]);
+const toast = useToast();
 
-// // Crea un array de arrays que represente los datos en el formato deseado
-// const datass = [columnNames];
+const selectedMonth = ref(null);
+const selectedYear = ref(null);
 
-// // Recorre los datos y conviértelos en arrays
-// props.reporte.forEach(item => {
-//   const rowData = columnNames.map(columnName => item[columnName]);
-//   datass.push(rowData);
-// });
-// datass.shift();
-
-
-const selectedMonth = ref(1); // Establece un valor predeterminado (por ejemplo, enero) o el que desees.
-
-const enviarMes = () => {
-  // Obtén el valor del mes seleccionado
-  const mesSeleccionado = selectedMonth.value;
-  // Realiza una solicitud GET a la ruta index con el parámetro mes
-  Inertia.visit(route("reporte.index", { mes: mesSeleccionado }));
+let añoSeleccionado;
+const enviarAño = () => {
+  añoSeleccionado = selectedYear.value;
 };
+const showErrorMessage = () => {
+  toast.add({
+    severity: "error",
+    summary: "Importante",
+    detail: "Seleccione un año",
+    life: 3000,
+  });
+};
+const enviarMes = () => {
+  if (!selectedYear.value) {
+    showErrorMessage();
 
-
+    //alert('Por favor, selecciona un año antes de enviar.');
+    return;
+  }
+  const mesSeleccionado = selectedMonth.value;
+  Inertia.visit(
+    route("reporte.index", { year: añoSeleccionado, mes: mesSeleccionado })
+  );
+};
 
 const nombreFilter = ref("");
 const Reporte = computed(() => {
@@ -155,6 +249,56 @@ const getRandomColor = () => {
   }
   return color;
 };
+//Grafico por cantidad de problemas
+
+const chartData2 = ref();
+const chartOptions2 = ref();
+
+onMounted(() => {
+  chartData2.value = setChartData2();
+  chartOptions2.value = setChartOptions2();
+});
+const setChartData2 = () => {
+  const backgroundColors = props.formattedDataCanProblems.data.map(() =>
+    getRandomColor()
+  );
+
+  return {
+    datasets: [
+      {
+        data: props.formattedDataCanProblems.data,
+        backgroundColor: backgroundColors,
+        label: "My dataset",
+      },
+    ],
+    labels: props.formattedDataCanProblems.labels,
+  };
+};
+
+const setChartOptions2 = () => {
+  const documentStyle = getComputedStyle(document.documentElement);
+  const textColor = documentStyle.getPropertyValue("--text-color");
+  const surfaceBorder = documentStyle.getPropertyValue("--surface-border");
+
+  return {
+    plugins: {
+      legend: {
+        labels: {
+          color: textColor,
+        },
+      },
+    },
+    scales: {
+      r: {
+        grid: {
+          color: surfaceBorder,
+        },
+      },
+    },
+  };
+};
+
+//Grafico por cantidad de problemas
 
 const backgroundColor1 = getRandomColor();
 const borderColor1 = getRandomColor();
@@ -168,7 +312,6 @@ const nuevosDatasets = props.graficoData.datasets.map((item) => ({
   tension: item.tension,
   data: item.data,
 }));
-
 
 onMounted(() => {
   chartData1.value = setChartData1();
@@ -243,20 +386,17 @@ const generatePDF = () => {
     dpi: 300, // Ajusta la resolución
   });
 
- 
-
   doc.setFont("Courier", "bold");
   doc.setFontSize(18);
   doc.text("REPORTE MENSUAL DE INCIDENCIAS", 50, 40);
 
   doc.setFontSize(11);
   doc.setFont("Helvetica", "bold");
-  doc.text('Generado por: ', 20, 50);
-  doc.text('Cargo:', 20, 55);
-  doc.text('Mes:', 20, 60);
-  doc.text('Año:', 20, 65);
-  doc.text('Fecha:', 20,70);
-
+  doc.text(`Generado por:   ${nameUsuarioReport} `, 20, 50);
+  doc.text(`Mes:    ${getMonthName(month)}`, 20, 55);
+  doc.text(`Año:    ${year}`, 20, 60);
+  doc.text(`Fecha:  ${currentDate}`, 20, 65);
+  doc.text(`Hora:   ${currentTime}`, 20, 70);
 
   const chartContainer = document.querySelector(".chart-container");
   const chartWidth = chartContainer.offsetWidth;
@@ -269,9 +409,7 @@ const generatePDF = () => {
   html2canvas(chartContainer, {
     scale: scale,
   }).then((canvas) => {
-    const data = datass
-
-
+    const data = datass;
 
     doc.autoTable({
       head: [
@@ -288,9 +426,29 @@ const generatePDF = () => {
       ],
       body: data,
       startY: 80,
-      theme: 'plain',
+      theme: "plain",
     });
 
+    doc.addFileToVFS("Pacifico-Regular.ttf", font1);
+      doc.setFontSize(20);
+      doc.setTextColor(41, 49, 51);
+      doc.addFont("Pacifico-Regular.ttf", "Pacifico-Regular", "Regular");
+      doc.setFont("Pacifico-Regular", "Regular");
+      doc.text("Municipalidad Provincial de Puno", 55, 13);
+      doc.addFileToVFS("LexendDeca-Thin.ttf", font2);
+      doc.setFontSize(15);
+      doc.addFont("LexendDeca-Thin.ttf", "LexendDeca-Thin", "Regular");
+      doc.setFont("LexendDeca-Thin", "Regular");
+      doc.text("Oficina de Tecnología Informática", 65, 23);
+
+      doc.addImage(imgData1, "JPEG", 15, 5, 17, 20);
+      doc.addImage(imgData2, "PNG", 175, 6, 25, 20);
+
+      doc.setDrawColor(17, 42, 74);
+      doc.line(0, 28, 215, 28, "S");
+
+      doc.setLineWidth(0.5);
+      doc.line(0, 29, 215, 29, "S");
     const chartImage = canvas.toDataURL("image/jpeg", 1.0); // Utiliza un formato de alta calidad (JPEG) y calidad máxima
 
     const pdfWidth = doc.internal.pageSize.getWidth() - 20;
@@ -298,53 +456,30 @@ const generatePDF = () => {
     const imageHeight = (chartHeight / chartWidth) * imageWidth;
 
     doc.addPage();
-    doc.setFont('Courier');
+    doc.setFont("Courier");
     doc.setFontSize(17);
     doc.text("Gráfico Resumen por tipo de problema:", 10, 40);
     doc.addImage(chartImage, "JPEG", 10, 50, imageWidth, imageHeight);
 
-    
-
     //PAGE NUMBERING
-  const pageCount = doc.internal.getNumberOfPages();
+    const pageCount = doc.internal.getNumberOfPages();
+   
 
-for (var i=1; i <= pageCount; i++){
-  doc.setPage(i);
+    for (var i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
 
-  doc.addFileToVFS("Pacifico-Regular.ttf", font1);
-  doc.setFontSize(20);
-  doc.setTextColor(41,49,51);
-  doc.addFont("Pacifico-Regular.ttf", "Pacifico-Regular", "Regular");
-  doc.setFont("Pacifico-Regular", "Regular");
-  doc.text("Municipalidad Provincial de Puno", 55, 13);
+      doc.setFont("Helvetica", "Bold");
+      doc.setFillColor(72, 61, 139);
+      doc.rect(0, 285, 220, 10, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(8);
 
-  doc.addFileToVFS("LexendDeca-Thin.ttf", font2);
-  doc.setFontSize(15);
-  doc.addFont("LexendDeca-Thin.ttf", "LexendDeca-Thin", "Regular");
-  doc.setFont("LexendDeca-Thin", "Regular");
-  doc.text("Oficina de Tecnología Informática", 65, 23);
+      doc.addImage(phone, "PNG", 18, 287, 5, 5);
+      doc.text("TELÉFONO: (051)368591 - ANEXO 4010", 25, 291);
 
-  doc.addImage(imgData1, "JPEG", 15, 5, 17, 20);
-  doc.addImage(imgData2, "PNG", 175, 6, 25, 20);
-
-  doc.setDrawColor(17, 42, 74);
-  doc.line(0, 28, 215, 28, "S");
-  
-  doc.setLineWidth(0.5);
-  doc.line(0, 29, 215, 29, "S");
-  
-  doc.setFont("Helvetica", "Bold");
-  doc.setFillColor(72,61,139);
-  doc.rect(0, 285, 220, 10, 'F');
-  doc.setTextColor(255,255,255);
-  doc.setFontSize(8);
-  doc.addImage(phone, "PNG", 18, 287, 5, 5);
-  doc.text("TELÉFONO: (051)368591 - ANEXO 4010", 25, 291);
-
-  doc.addImage(email, "PNG", 123, 287, 5, 5);
-  doc.text("CORREO: OTI@MUNIPUNO.GOB.PE", 130, 291);
-
-}
+      doc.addImage(email, "PNG", 123, 287, 5, 5);
+      doc.text("CORREO: OTI@MUNIPUNO.GOB.PE", 130, 291);
+    }
     doc.save("reporte_mesa_ayuda.pdf");
   });
 };
