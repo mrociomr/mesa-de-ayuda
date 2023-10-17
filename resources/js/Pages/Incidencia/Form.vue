@@ -163,6 +163,21 @@ const formProcessing = ref(false);
 
 //      return this.form.tipo_problema_id === 2;
 //    };
+
+const customFilter = (e) => {
+  const value = e.query.toLowerCase();
+  const filteredItems = items.filter((item) => item.toLowerCase().includes(value));
+  e.filteredOptions = filteredItems;
+};
+
+const handleEnter = () => {
+      const inputText = selectedItem.value;
+      const matchingItem = items.find(item => item.toLowerCase() === inputText.toLowerCase());
+      
+      if (matchingItem) {
+        selectedItem.value = matchingItem;
+      }
+    };
 </script>
 <template>
   <div
@@ -287,12 +302,14 @@ const formProcessing = ref(false);
                     <Dropdown
                       v-model="form.oficina_id"
                       :options="oficinas"
-                      editable
                       showClear
                       optionLabel="nombre"
                       optionValue="id"
                       placeholder="Seleccione su oficina"
                       class="w-full md:w-14rem"
+                      filter
+                      @onFilter="customFilter"
+                      @keydown.enter="handleEnter"
                     />
                   </div>
                   <div

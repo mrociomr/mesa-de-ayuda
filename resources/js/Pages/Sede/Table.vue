@@ -135,38 +135,7 @@
             disabled
           />
         </div>
-
-        <div class="mb-6">
-          <label
-            for="created_at"
-            class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 font-sans"
-            >Fecha de creación</label
-          >
-          <input
-            type="datetime-local"
-            v-model="selectedRow.created_at"
-            id="created_at"
-            name="created_at"
-            class="bg-gray-50 border border-gray-300 text-base rounded-lg block w-full p-2.5 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none cursor-not-allowed"
-            disabled
-          />
-        </div>
-        <div class="mb-6">
-          <label
-            for="updated_at"
-            class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 font-sans"
-            >Fecha de actualización</label
-          >
-          <input
-            type="datetime-local"
-            v-model="selectedRow.updated_at"
-            id="updated_at"
-            name="updated_at"
-            class="bg-gray-50 border border-gray-300 text-base rounded-lg block w-full p-2.5 disabled:bg-slate-50 disabled:text-slate-500 disabled:border-slate-200 disabled:shadow-none cursor-not-allowed"
-            disabled
-          />
-        </div>
-
+       
       </div>
       <template #footer>
         <Button label="Cerrar" icon="pi pi-times" @click="visible = false" text />

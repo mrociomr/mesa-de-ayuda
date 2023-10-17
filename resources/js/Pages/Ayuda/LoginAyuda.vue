@@ -6,8 +6,8 @@ import { Inertia } from "@inertiajs/inertia";
 
 const props = defineProps({
   oficinas: Array,
-  diaSemana: Number, // Cambiar a Number
-  horaActual: String, // Cambiar a String
+  diaSemana: Number,
+  horaActual: String, 
 });
 
 const diaSemana = ref(props.diaSemana);
@@ -25,6 +25,23 @@ const createForm = async () => {
   const response = await form.post(`/loginAyuda`);
   console.log(response);
 };
+
+const customFilter = (e) => {
+  const value = e.query.toLowerCase();
+  const filteredItems = items.filter((item) => item.toLowerCase().includes(value));
+  e.filteredOptions = filteredItems;
+};
+
+const handleEnter = () => {
+      const inputText = selectedItem.value;
+      const matchingItem = items.find(item => item.toLowerCase() === inputText.toLowerCase());
+      
+      if (matchingItem) {
+        selectedItem.value = matchingItem;
+      }
+    };
+
+
 </script>
 <template>
   <Head title="Login" />
@@ -88,16 +105,17 @@ const createForm = async () => {
                   >
 
                   <Dropdown
-                    v-model="form.nombre"
-                    :options="oficinas"
-                    editable
-                    showClear
-                    optionLabel="nombre"
-                    optionValue="nombre"
-                    placeholder="Seleccione una oficina"
-                    class="w-full md:w-14rem"
-                  />
-
+                  v-model="form.nombre"
+                  :options="oficinas"                
+                  showClear
+                  optionLabel="nombre"
+                  optionValue="nombre"
+                  placeholder="Seleccione una oficina"
+                  class="w-full md:w-14rem"
+                  filter
+                  @onFilter="customFilter"
+                  @keydown.enter="handleEnter"
+                />
                   <div v-if="form.errors.nombre" class="text-sm text-red-600">
                     {{ form.errors.nombre }}
                   </div>

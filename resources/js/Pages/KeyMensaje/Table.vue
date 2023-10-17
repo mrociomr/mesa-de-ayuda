@@ -1,8 +1,11 @@
 <template>
-    <Head title="Key Mesnajes" />
+    <Head title="Key Mensajes" />
 
     <AuthenticatedLayout>
-      <div class="bg-white shadow rounded-lg p-4 sm:p-6 xl:p-8  2xl:col-span-2 text-sm">
+      <div v-if="$page.props.flash.message" class="fixed z-50 top-4 right-4">
+        <Notification :message="$page.props.flash.message" />
+      </div>
+      <div class="bg-white shadow rounded-lg p-4 sm:p-2 xl:p-8 2xl:col-span-2 text-sm">
         <div class="grid grid-rows-1 grid-flow-col">
           <div class="flex justify-content-end">
             <span class="p-input-icon-left">
@@ -45,6 +48,7 @@
   import { Head, useForm, Link } from "@inertiajs/inertia-vue3";
 
   import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+  import Notification from "@/Components/Notification.vue";
 
   const form = useForm({});
 
@@ -69,7 +73,6 @@
   const toggleButton = () => {
     showButton.value = !showButton.value;
   };
-
 
   const editRow = (rowData) => {
       //console.log("dependencia.edit", rowData);

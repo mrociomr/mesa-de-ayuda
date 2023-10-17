@@ -22,6 +22,22 @@ const form = useForm({
 const createForm = () => {
   form.post(route('incidencia.store'));
 };
+
+const customFilter = (e) => {
+  const value = e.query.toLowerCase();
+  const filteredItems = items.filter((item) => item.toLowerCase().includes(value));
+  e.filteredOptions = filteredItems;
+};
+
+const handleEnter = () => {
+      const inputText = selectedItem.value;
+      const matchingItem = items.find(item => item.toLowerCase() === inputText.toLowerCase());
+      
+      if (matchingItem) {
+        selectedItem.value = matchingItem;
+      }
+    };
+
 </script>
 <template>
   <AuthenticatedLayout>
@@ -101,12 +117,15 @@ const createForm = () => {
                 <Dropdown
                   v-model="form.oficina_id"
                   :options="oficinas"
-                  editable
                   optionLabel="nombre"
                   optionValue="id"
                   placeholder="Seleccione una oficina"
                   class="w-full md:w-14rem"
-                  showClear />
+                  showClear 
+                  filter
+                  @onFilter="customFilter"
+                  @keydown.enter="handleEnter"
+                  />
 
                 <div v-if="form.errors.oficina_id" class="text-sm text-red-600">
                   {{ form.errors.oficina_id }}
@@ -139,7 +158,10 @@ const createForm = () => {
                   placeholder="Seleccione un tipo de problema"
                   class="w-full md:w-14rem"
                   showClear 
-                  editable/>
+                  filter
+                  @onFilter="customFilter"
+                  @keydown.enter="handleEnter"
+                  />
                 <div v-if="form.errors.tipo_problema_id" class="text-sm text-red-600">
                   {{ form.errors.tipo_problema_id }}
                 </div>

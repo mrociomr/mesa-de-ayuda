@@ -1,6 +1,6 @@
 <template>
   <AuthenticatedLayout>
-    <Toast />
+    <Head title="Reportes" />
     <div
       class="bg-white shadow rounded-lg p-4 sm:p-6 xl:p-8 2xl:col-span-2 text-sm"
     >

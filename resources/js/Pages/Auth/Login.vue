@@ -71,14 +71,14 @@ const submit = () => {
                             <div class="mt-4">
                                 <div class="flex justify-between items-center">
                                 <InputLabel for="password" value="Contraseña" />
-                                <Link
+                          <!--      <Link
                                 v-if="canResetPassword"
                                 :href="route('password.request')"
                                 class="text-xs font-display font-semibold text-indigo-600 hover:text-indigo-800
                                 cursor-pointer"
                             >
                                 ¿Olvidaste tu contraseña?
-                            </Link>
+                            </Link> -->
                                 </div>
                                 <TextInput
                                     id="password"

@@ -1,6 +1,9 @@
 <template>
     <Head title="Usuarios" />
     <AuthenticatedLayout>
+      <div v-if="$page.props.flash.message" class="fixed z-50 top-4 right-4">
+        <Notification :message="$page.props.flash.message"/> 
+      </div>
         <div class="bg-white shadow rounded-lg p-4 sm:p-6 xl:p-8  2xl:col-span-2 text-sm">
   
             <div class="grid grid-rows-1 grid-flow-col">
@@ -154,7 +157,7 @@
     import { Head, useForm, Link} from "@inertiajs/inertia-vue3";
     import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
     import Swal from 'sweetalert2';
-
+    import Notification from "@/Components/Notification.vue";
     
   
      

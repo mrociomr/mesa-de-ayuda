@@ -190,7 +190,7 @@ const createForm = () => {
                   v-model="form.atendido_por"
                   id="atendido_por"
                   name="atendido_por"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                  class="bg-gray-50 border border-gray-300 cursor-not-allowed text-gray-900 text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                   placeholder="Ingrese el código patrimonial"
                   readonly
                 />

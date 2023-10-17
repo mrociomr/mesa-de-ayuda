@@ -58,7 +58,7 @@ class KeysMensajeController extends Controller
 
         KeysMensaje::create($request->all());
 
-        return redirect()->route('key-mensaje.index');
+        return redirect()->route('key-mensaje.index')->with('message', 'Key creado');
         //return Inertia::location(route('tipo-problema.index'));
     }
 

@@ -196,7 +196,7 @@ const setChartData2 = () => {
 };
 
 
-const diasSemana = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 const fechaActual = new Date();
 const diaActual = diasSemana[fechaActual.getDay()];
 const nombreDiaActual = ref(diaActual);
@@ -205,11 +205,7 @@ const nombreDiaActual = ref(diaActual);
 
 <template>
   <AuthenticatedLayout>
-    <template #header>
-      <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-        Dashboard
-      </h2>
-    </template>
+    <Head title="Dashboard" />
 
     <div
       class="w-full grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-4 py-4"
@@ -222,7 +218,7 @@ const nombreDiaActual = ref(diaActual);
               >{{ cantidad_dia }}</span
             >
             <h3 class="text-base font-normal text-gray-500">
-              Incidencias del día {{ nombreDiaActual }}
+              Incidencias del día: {{ nombreDiaActual }}
             </h3>
           </div>
           <div
@@ -279,7 +275,7 @@ const nombreDiaActual = ref(diaActual);
               >{{ cantidad_mes }}</span
             >
             <h3 class="text-base font-normal text-gray-500">
-              Incidencias del mes {{ nombreMes }}
+              Incidencias del mes: {{ nombreMes }}
             </h3>
           </div>
           <div

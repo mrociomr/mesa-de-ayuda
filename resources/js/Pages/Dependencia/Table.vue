@@ -9,16 +9,18 @@
       class="bg-white shadow rounded-lg p-4 sm:p-6 xl:p-8 2xl:col-span-2 text-sm"
     >
       <div class="grid grid-rows-1 grid-flow-col">
+        <!--BUSCAR-->
         <div class="flex justify-content-end">
-          <span class="p-input-icon-left">
-            <i class="pi pi-search" />
-            <InputText
-              v-model="nombreFilter"
-              @input="applyFilter"
-              placeholder="Buscar..."
-            />
-          </span>
-        </div>
+              <span class="p-input-icon-left">
+                <i class="pi pi-search" />
+                <InputText
+                  v-model="nombreFilter"
+                  @input="applyFilter"
+                  placeholder="Buscar..."
+                />
+              </span>
+            </div>
+            
         <div class="flex justify-end">
           <Link :href="route('dependencia.create')">
             <Button icon="pi pi-plus" label="Crear" raised />
@@ -41,9 +43,9 @@
 </template>
 
 
-  <script setup>
+<script setup>
 import DataTableComponent from "@/Components/TablePrimeVue.vue";
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 
 import { Head, useForm, Link } from "@inertiajs/inertia-vue3";
 
@@ -78,6 +80,7 @@ const deleteRow = (rowId) => {
   //console.log("Delete row with ID:", rowId);
   form.delete(route("dependencia.destroy", rowId));
 };
+
 </script>
 
 
