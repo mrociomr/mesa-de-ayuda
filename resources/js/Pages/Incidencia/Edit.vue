@@ -22,6 +22,22 @@ const form = useForm({
 const updateForm = () => {
     form.put(`/incidencia/${props.incidencia.id}`);
 };
+
+
+const customFilter = (e) => {
+  const value = e.query.toLowerCase();
+  const filteredItems = items.filter((item) => item.toLowerCase().includes(value));
+  e.filteredOptions = filteredItems;
+};
+
+const handleEnter = () => {
+      const inputText = selectedItem.value;
+      const matchingItem = items.find(item => item.toLowerCase() === inputText.toLowerCase());
+      
+      if (matchingItem) {
+        selectedItem.value = matchingItem;
+      }
+    };
 </script>
 <template>
   <AuthenticatedLayout>
@@ -101,7 +117,11 @@ const updateForm = () => {
                 optionValue="id"
                 placeholder="Seleccione una opción"
                 class="w-full md:w-14rem"
-                showClear />
+                showClear 
+                filter
+                @onFilter="customFilter"
+                @keydown.enter="handleEnter"
+                />
 
                 <div v-if="form.errors.oficina_id" class="text-sm text-red-600">
                   {{ form.errors.oficina_id }}

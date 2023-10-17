@@ -33,6 +33,21 @@ const estados = ref(["Atendido", "Rechazado"]);
 const createForm = () => {
   form.post(route("solucion.store"));
 };
+
+const customFilter = (e) => {
+  const value = e.query.toLowerCase();
+  const filteredItems = items.filter((item) => item.toLowerCase().includes(value));
+  e.filteredOptions = filteredItems;
+};
+
+const handleEnter = () => {
+      const inputText = selectedItem.value;
+      const matchingItem = items.find(item => item.toLowerCase() === inputText.toLowerCase());
+      
+      if (matchingItem) {
+        selectedItem.value = matchingItem;
+      }
+    };
 </script>
 <template>
   <AuthenticatedLayout>
@@ -108,7 +123,9 @@ const createForm = () => {
                   placeholder="Seleccione una solución"
                   class="w-full md:w-14rem"
                   showClear
-                  editable
+                  filter
+                  @onFilter="customFilter"
+                  @keydown.enter="handleEnter"
                 />
                 <!--
                   <v-select

@@ -29,6 +29,21 @@ const estados = ref([ 'Activo' ,'Inactivo']);
 const updateForm = () => {
     form.patch(`/oficina/${props.oficina.id}}}`);
 };
+
+const customFilter = (e) => {
+  const value = e.query.toLowerCase();
+  const filteredItems = items.filter((item) => item.toLowerCase().includes(value));
+  e.filteredOptions = filteredItems;
+};
+
+const handleEnter = () => {
+      const inputText = selectedItem.value;
+      const matchingItem = items.find(item => item.toLowerCase() === inputText.toLowerCase());
+      
+      if (matchingItem) {
+        selectedItem.value = matchingItem;
+      }
+    };
 </script>
 <template>
   <AuthenticatedLayout>
@@ -169,7 +184,11 @@ const updateForm = () => {
                  optionValue="id"
                  placeholder="Seleccione una sede"
                  class="w-full md:w-14rem"
-                 showClear />
+                 showClear 
+                 filter
+                 @onFilter="customFilter"
+                 @keydown.enter="handleEnter"
+                 />
 
                   <div v-if="form.errors.sede_id" class="text-sm text-red-600">
                     {{ form.errors.sede_id }}
@@ -211,7 +230,11 @@ const updateForm = () => {
                     optionValue="id"
                     placeholder="Seleccione una dependencia"
                     class="w-full md:w-14rem"
-                    showClear />
+                    showClear
+                    filter
+                    @onFilter="customFilter"
+                    @keydown.enter="handleEnter"
+                    />
                   <!--
                     <v-select
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"

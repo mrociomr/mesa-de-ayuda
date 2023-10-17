@@ -32,6 +32,21 @@ const createForm = () => {
   form.post(route('oficina.store'));
 };
 
+const customFilter = (e) => {
+  const value = e.query.toLowerCase();
+  const filteredItems = items.filter((item) => item.toLowerCase().includes(value));
+  e.filteredOptions = filteredItems;
+};
+
+const handleEnter = () => {
+      const inputText = selectedItem.value;
+      const matchingItem = items.find(item => item.toLowerCase() === inputText.toLowerCase());
+      
+      if (matchingItem) {
+        selectedItem.value = matchingItem;
+      }
+    };
+
 
 </script>
 <template>
@@ -156,11 +171,15 @@ const createForm = () => {
                   v-model="form.sede_id"
                   :options="sedes"
                   showClear
-                  editable
+                  
                   optionLabel="nombre"
                   optionValue="id"
                   placeholder="Seleccione una sede"
-                  class="w-full md:w-14rem" />
+                  class="w-full md:w-14rem"
+                  filter
+                  @onFilter="customFilter"
+                  @keydown.enter="handleEnter"
+                  />
                   <!--
                 <v-select
                     class="bg-gray-50 border-gray-300 md:w-14rem  text-gray-500 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
@@ -190,11 +209,14 @@ const createForm = () => {
                   v-model="form.dependencia_id"
                   :options="dependencias"
                   showClear
-                  editable
                   optionLabel="nombre"
                   optionValue="id"
                   placeholder="Seleccione una dependencia"
-                  class="w-full md:w-14rem" />
+                  class="w-full md:w-14rem"
+                  filter
+                  @onFilter="customFilter"
+                  @keydown.enter="handleEnter"
+                  />
                   <!--
                   <v-select
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
