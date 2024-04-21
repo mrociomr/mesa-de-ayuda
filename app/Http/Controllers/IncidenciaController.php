@@ -84,16 +84,16 @@ class IncidenciaController extends Controller
     {
         if (Auth::user()->can('incidencia.create')) {
 
-        $oficinas = Oficina::all();
-        $tiposProblema = TipoProblema::all();
-        //dd($oficinas);
-        return Inertia::render('Incidencia/Create', [
-            'oficinas' => $oficinas,
-            'tiposProblema' => $tiposProblema,
-        ]);
-    } else {
-        return redirect()->route('dashboard');
-    }
+            $oficinas = Oficina::all();
+            $tiposProblema = TipoProblema::all();
+            //dd($oficinas);
+            return Inertia::render('Incidencia/Create', [
+                'oficinas' => $oficinas,
+                'tiposProblema' => $tiposProblema,
+            ]);
+        } else {
+            return redirect()->route('dashboard');
+        }
     }
 
     public function store(Request $request)
@@ -117,18 +117,18 @@ class IncidenciaController extends Controller
     {
         if (Auth::user()->can('incidencia.edit')) {
 
-        $oficinas = Oficina::all();
-        $tiposProblema = TipoProblema::all();
-        $incidencia->load('oficina', 'tipo_problema');
-        //dd($incidencia);
-        return Inertia::render('Incidencia/Edit', [
-            'incidencia' => $incidencia,
-            'oficinas' => $oficinas,
-            'tiposProblema' => $tiposProblema,
-        ]);
-    } else {
-        return redirect()->route('dashboard');
-    }
+            $oficinas = Oficina::all();
+            $tiposProblema = TipoProblema::all();
+            $incidencia->load('oficina', 'tipo_problema');
+            //dd($incidencia);
+            return Inertia::render('Incidencia/Edit', [
+                'incidencia' => $incidencia,
+                'oficinas' => $oficinas,
+                'tiposProblema' => $tiposProblema,
+            ]);
+        } else {
+            return redirect()->route('dashboard');
+        }
     }
 
     public function update(Request $request, Incidencia $incidencia)
@@ -156,15 +156,13 @@ class IncidenciaController extends Controller
     {
         if (Auth::user()->can('incidencia.destroy')) {
 
-        $incidencia = Incidencia::find($id);
-        $incidencia->delete();
+            $incidencia = Incidencia::find($id);
+            $incidencia->delete();
 
-        return redirect()->route('incidencia.index');
-        //return Inertia::location(route('incidencia.index'));
-    } else {
-        return redirect()->route('dashboard');
+            return redirect()->route('incidencia.index');
+            //return Inertia::location(route('incidencia.index'));
+        } else {
+            return redirect()->route('dashboard');
+        }
     }
-    }
-
-
 }

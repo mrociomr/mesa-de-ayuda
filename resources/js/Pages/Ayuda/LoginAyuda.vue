@@ -5,9 +5,9 @@ import { useForm } from "@inertiajs/inertia-vue3";
 import { Inertia } from "@inertiajs/inertia";
 
 const props = defineProps({
-  oficinas: Array,
-  diaSemana: Number,
-  horaActual: String, 
+    oficinas: Array,
+    diaSemana: Number,
+    horaActual: String,
 });
 
 const diaSemana = ref(props.diaSemana);
@@ -17,147 +17,171 @@ console.log(props.diaSemana);
 console.log(props.horaActual);
 
 const form = useForm({
-  nombre: null,
-  password: null,
+    nombre: null,
+    password: null,
 });
 
 const createForm = async () => {
-  const response = await form.post(`/loginAyuda`);
-  console.log(response);
+    const response = await form.post(`/loginAyuda`);
+    console.log(response);
 };
 
 const customFilter = (e) => {
-  const value = e.query.toLowerCase();
-  const filteredItems = items.filter((item) => item.toLowerCase().includes(value));
-  e.filteredOptions = filteredItems;
+    const value = e.query.toLowerCase();
+    const filteredItems = items.filter((item) =>
+        item.toLowerCase().includes(value)
+    );
+    e.filteredOptions = filteredItems;
 };
 
 const handleEnter = () => {
-      const inputText = selectedItem.value;
-      const matchingItem = items.find(item => item.toLowerCase() === inputText.toLowerCase());
-      
-      if (matchingItem) {
+    const inputText = selectedItem.value;
+    const matchingItem = items.find(
+        (item) => item.toLowerCase() === inputText.toLowerCase()
+    );
+
+    if (matchingItem) {
         selectedItem.value = matchingItem;
-      }
-    };
-
-
+    }
+};
 </script>
 <template>
-  <Head title="Login" />
-  <div 
-    class="fondo min-h-screen flex justify-center bg-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-500 bg-no-repeat bg-cover relative items-center"
-    style="
-      background-image: url(https://ojoalclima.com/wp-content/uploads/2022/07/20-Lago-Titicaca.jpg);
-    "
-  >
-  
-    <div class="absolute bg-black opacity-60 inset-0 z-0"></div>
+    <Head title="Login" />
     <div
-      class="max-w-md w-full space-y-8 p-10 bg-white rounded-xl shadow-lg z-10"
+        class="fondo min-h-screen flex justify-center bg-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-500 bg-no-repeat bg-cover relative items-center"
     >
-      <div class="grid gap-8 grid-cols-1">
-        <div class="flex flex-col">
-          <div class="flex flex-col sm:flex-row items-center">
-            <div class="w-12 h-12 mr-4 flex-none rounded-xl overflow-hidden">
-              <img
-                class="w-10 h-15 mr-4 object-cover"
-                src="/images/Escudo_de_Puno.png"
-                alt="Logo del municipio de Puno"
-              />
-            </div>
-            <div class="text-center">
-              <p class="font-semibold text-sm mr-auto">
-                MUNICIPALIDAD PROVINCIAL DE PUNO
-              </p>
-              <p class="text-sm mr-auto">OFICINA DE TECNOLOGÍA INFORMÁTICA</p>
-            </div>
-          </div>
-          <div v-if="diaSemana == 6 || diaSemana == 7">
-            <p class="text-red-500 text-2xl text-center font-semibold">
-              Lo sentimos, no atendemos los fines de semana.
-            </p>
-          </div>
-          <div v-else-if="horaActual < '08:00' || horaActual >= '17:00'">
-            <p class="text-red-500 text-2xl text-center font-semibold">
-              Lo sentimos, estamos fuera del horario. La atención es de (8:00 AM - 5:00
-              PM).
-            </p>
-          </div>
+        <div class="absolute bg-black opacity-60 inset-0 z-0"></div>
+        <div
+            class="max-w-md w-full space-y-8 p-10 bg-white rounded-xl shadow-lg z-10"
+        >
+            <div class="grid gap-8 grid-cols-1">
+                <div class="flex flex-col">
+                    <div class="flex flex-col sm:flex-row items-center">
+                        <div
+                            class="w-12 h-12 mr-4 flex-none rounded-xl overflow-hidden"
+                        >
+                            <img
+                                class="w-10 h-15 mr-4 object-cover"
+                                src="/images/Escudo_de_Puno.png"
+                                alt="Logo del municipio de Puno"
+                            />
+                        </div>
+                        <div class="text-center">
+                            <p class="font-semibold text-sm mr-auto">
+                                MUNICIPALIDAD PROVINCIAL DE PUNO
+                            </p>
+                            <p class="text-sm mr-auto">
+                                OFICINA DE TECNOLOGÍA INFORMÁTICA
+                            </p>
+                        </div>
+                    </div>
+                    <div v-if="diaSemana == 6 || diaSemana == 7">
+                        <p
+                            class="text-red-500 text-2xl text-center font-semibold"
+                        >
+                            Lo sentimos, no atendemos los fines de semana.
+                        </p>
+                    </div>
+                    <div
+                        v-else-if="
+                            horaActual < '08:00' || horaActual >= '17:00'
+                        "
+                    >
+                        <p
+                            class="text-red-500 text-2xl text-center font-semibold"
+                        >
+                            Lo sentimos, estamos fuera del horario. La atención
+                            es de (8:00 AM - 5:00 PM).
+                        </p>
+                    </div>
 
-          <div v-else class="mt-5">
-            <div class="form">
-              <div class="md:space-y-2 mb-3">
-                <p class="text-sm text-center font-semibold text-gray-600">
-                  INICIAR SESIÓN
-                </p>
-                <p class="text-xl text-center font-semibold text-gray-600">
-                  MESA DE AYUDA
-                </p>
-              </div>
-              <form @submit.prevent="createForm" class="mt-6 space-y-6">
-                <!-- OFICINA -->
-                <div class="mb-6">
-                  <label
-                    for="oficina_id"
-                    class="block uppercase tracking-wide text-gray-700 text-sm after:content-['*'] after:ml-0.5 after:text-red-500 font-bold mb-2"
-                    >Oficina</label
-                  >
+                    <div v-else class="mt-5">
+                        <div class="form">
+                            <div class="md:space-y-2 mb-3">
+                                <p
+                                    class="text-sm text-center font-semibold text-gray-600"
+                                >
+                                    INICIAR SESIÓN
+                                </p>
+                                <p
+                                    class="text-xl text-center font-semibold text-gray-600"
+                                >
+                                    MESA DE AYUDA
+                                </p>
+                            </div>
+                            <form
+                                @submit.prevent="createForm"
+                                class="mt-6 space-y-6"
+                            >
+                                <!-- OFICINA -->
+                                <div class="mb-6">
+                                    <label
+                                        for="oficina_id"
+                                        class="block uppercase tracking-wide text-gray-700 text-sm after:content-['*'] after:ml-0.5 after:text-red-500 font-bold mb-2"
+                                        >Oficina</label
+                                    >
 
-                  <Dropdown
-                  v-model="form.nombre"
-                  :options="oficinas"                
-                  showClear
-                  optionLabel="nombre"
-                  optionValue="nombre"
-                  placeholder="Seleccione una oficina"
-                  class="w-full md:w-14rem"
-                  filter
-                  @onFilter="customFilter"
-                  @keydown.enter="handleEnter"
-                />
-                  <div v-if="form.errors.nombre" class="text-sm text-red-600">
-                    {{ form.errors.nombre }}
-                  </div>
+                                    <Dropdown
+                                        v-model="form.nombre"
+                                        :options="oficinas"
+                                        showClear
+                                        optionLabel="nombre"
+                                        optionValue="nombre"
+                                        placeholder="Seleccione una oficina"
+                                        class="w-full md:w-14rem"
+                                        filter
+                                        @onFilter="customFilter"
+                                        @keydown.enter="handleEnter"
+                                    />
+                                    <div
+                                        v-if="form.errors.nombre"
+                                        class="text-sm text-red-600"
+                                    >
+                                        {{ form.errors.nombre }}
+                                    </div>
+                                </div>
+
+                                <!-- CONTRASEÑA -->
+                                <div class="mb-6">
+                                    <label
+                                        for="celular"
+                                        class="block uppercase tracking-wide text-gray-700 text-sm after:content-['*'] after:ml-0.5 after:text-red-500 font-bold mb-2"
+                                        >Contraseña
+                                    </label>
+                                    <input
+                                        type="text"
+                                        v-model="form.password"
+                                        id="password"
+                                        name="password"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                        placeholder="Ingrese su contraseña"
+                                    />
+                                    <div
+                                        v-if="form.errors.password"
+                                        class="text-sm text-red-600"
+                                    >
+                                        {{ form.errors.password }}
+                                    </div>
+                                </div>
+
+                                <!--BOTÓN INGRESAR -->
+                                <div class="flex justify-end">
+                                    <button
+                                        type="submit"
+                                        class="mb-2 md:mb-0 bg-green-400 px-5 py-2 text-sm shadow-sm font-medium tracking-wider text-white rounded-full hover:shadow-lg hover:bg-green-500"
+                                        :disabled="form.processing"
+                                        :class="{
+                                            'opacity-25': form.processing,
+                                        }"
+                                    >
+                                        INGRESAR
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-
-                <!-- CONTRASEÑA -->
-                <div class="mb-6">
-                  <label
-                    for="celular"
-                    class="block uppercase tracking-wide text-gray-700 text-sm after:content-['*'] after:ml-0.5 after:text-red-500 font-bold mb-2"
-                    >Contraseña
-                  </label>
-                  <input
-                    type="text"
-                    v-model="form.password"
-                    id="password"
-                    name="password"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                    placeholder="Ingrese su contraseña"
-                  />
-                  <div v-if="form.errors.password" class="text-sm text-red-600">
-                    {{ form.errors.password }}
-                  </div>
-                </div>
-
-                <!--BOTÓN INGRESAR -->
-                <div class="flex justify-end">
-                  <button
-                    type="submit"
-                    class="mb-2 md:mb-0 bg-green-400 px-5 py-2 text-sm shadow-sm font-medium tracking-wider text-white rounded-full hover:shadow-lg hover:bg-green-500"
-                    :disabled="form.processing"
-                    :class="{ 'opacity-25': form.processing }"
-                  >
-                    INGRESAR
-                  </button>
-                </div>
-              </form>
             </div>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
 </template>
-
