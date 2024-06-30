@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('incidencias', function (Blueprint $table) {
             $table->id();
+            $table->string('nTicket')->nullable();
             $table->string('dni');
             $table->string('celular');
             $table->text('otros')->nullable();

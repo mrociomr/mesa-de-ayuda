@@ -92,6 +92,7 @@ Route::resource('mensaje', MensajeController::class);
 
 Route::middleware(['auth:ayuda'])->group(function () {
     Route::get('/ayuda', [AyudaController::class, 'create'])->name('ayuda.create');
+    Route::get('/mi-ticked/{id}', [AyudaController::class, 'miTicked'])->name('miTicked');
     Route::post('/ayuda', [AyudaController::class, 'store'])->name('ayuda.store');
 });
 

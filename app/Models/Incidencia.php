@@ -14,7 +14,8 @@ class Incidencia extends Model
         'tipo_problema_id',
         'oficina_id',
         'otros',
-        
+        'nTicket'
+
     ];
 
     public function tipo_problema(){

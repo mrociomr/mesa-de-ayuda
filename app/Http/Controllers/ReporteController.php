@@ -130,6 +130,7 @@ class ReporteController extends Controller
                 'solucions.atendido_por AS Atendido',
                 'oficinas.nombre',
                 'solucions.estado',
+                'incidencias.nTicket AS nTicket',
                 DB::raw('solucions.created_at AS Fecha')
             )
             ->join('incidencias', 'incidencias.id', '=', 'solucions.incidencias_id')
@@ -139,9 +140,9 @@ class ReporteController extends Controller
             ->whereRaw('MONTH(solucions.created_at) = ?', [$mess])
             ->whereYear('incidencias.created_at', $anisos)
             ->get();
-        
+
         $tableColumns = [
-            ['key' => 'id', 'label' => 'ID'],
+            ['key' => 'nTicket', 'label' => 'N° Ticket'],
             ['key' => 'TipoProblema', 'label' => 'Tipo de Problema'],
             ['key' => 'TipoSolucion', 'label' => 'Tipo de Solución'],
             ['key' => 'descripcion', 'label' => 'Descripción'],
@@ -150,15 +151,15 @@ class ReporteController extends Controller
             ['key' => 'Fecha', 'label' => 'Fecha'],
             ['key' => 'Atendido', 'label' => 'Atendido Por'],
         ];
-        
+
         foreach ($resultadoMes as $resultado) {
             $resultado->TipoProblema = strtolower($resultado->TipoProblema) === 'otros' ? $resultado->OtrosIncidencias : $resultado->TipoProblema;
         }
-        
+
             $userAut = Auth::user();
 
             $currentDate = now();
-            $dateFormatted = $currentDate->format('d/m/Y'); 
+            $dateFormatted = $currentDate->format('d/m/Y');
             $year = $currentDate->year;
             $month = $currentDate->month;
             $day = $currentDate->day;

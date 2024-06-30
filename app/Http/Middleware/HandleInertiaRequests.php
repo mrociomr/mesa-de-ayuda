@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tightenco\Ziggy\Ziggy;
 use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\Session;
 use App\Models\Oficina;
+
 
 class HandleInertiaRequests extends Middleware
 {
@@ -59,9 +61,11 @@ class HandleInertiaRequests extends Middleware
                 ]);
             },
 
-            'flash' => [
-                'message' => fn () => $request->session()->get('message')
-            ],
+            'flash' => function () use ($request) {
+                return [
+                    'mesActual' => Session::get('mesActual'),
+                ];
+            },
         ]);
     }
 }

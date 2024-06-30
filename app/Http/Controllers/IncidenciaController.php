@@ -10,11 +10,12 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+
 
 
 class IncidenciaController extends Controller
 {
-
     public function index(Request $request)
     {
         if (Auth::user()->can('incidencia.index')) {
@@ -31,6 +32,7 @@ class IncidenciaController extends Controller
                 $query->where(function ($subquery) use ($nombreFilter) {
                     $subquery->orWhere('dni', 'like', '%' . $nombreFilter . '%')
                         ->orWhere('celular', 'like', '%' . $nombreFilter . '%')
+                        ->orWhere('nTicket', 'like', '%' . $nombreFilter . '%')
                         ->orWhereHas('tipo_problema', function ($subsubquery) use ($nombreFilter) {
                             $subsubquery->where('nombre', 'like', '%' . $nombreFilter . '%');
                         });
@@ -50,11 +52,12 @@ class IncidenciaController extends Controller
                 ->get();
 
             $tableColumns = [
-                ['key' => 'id', 'label' => 'ID'],
+                ['key' => 'nTicket', 'label' => 'TICKED'],
                 ['key' => 'dni', 'label' => 'DNI'],
                 ['key' => 'celular', 'label' => 'Celular'],
                 ['key' => 'tipo_problema.nombre', 'label' => 'Tipo de problema'],
                 ['key' => 'oficina.nombre', 'label' => 'Oficina'],
+
             ];
 
             foreach ($incidencias as $incidencia) {
@@ -98,6 +101,8 @@ class IncidenciaController extends Controller
 
     public function store(Request $request)
     {
+        $mesActual = Carbon::now()->month;
+
         $request->validate([
             'dni' => 'required|digits:8|numeric',
             'celular' => 'required|digits:9|numeric',
@@ -105,10 +110,36 @@ class IncidenciaController extends Controller
             'oficina_id' => 'required',
         ]);
 
-        Incidencia::create($request->all());
+        //Incidencia::create($request->all());
+
+        // Obtiene el mes y año actuales
+        $mesActual = Carbon::now()->format('m');
+        $anioActual = Carbon::now()->format('Y');
+
+        // Obtiene el último número de ticket del mes y año actuales
+        $ultimoTicket = DB::table('incidencias')
+            ->whereYear('created_at', $anioActual)
+            ->whereMonth('created_at', $mesActual)
+            ->orderBy('nTicket', 'desc')
+            ->first();
+
+        // Calcula el nuevo número de ticket
+        $nuevoNumero = $ultimoTicket ? intval(substr($ultimoTicket->nTicket, 0, 3)) + 1 : 1;
+        $nuevoNumero = str_pad($nuevoNumero, 3, '0', STR_PAD_LEFT);
+        $nTicket = $nuevoNumero . '-' . $mesActual . '-' . $anioActual;
+
+        // Crea la incidencia con el nuevo número de ticket
+        $createdData = Incidencia::create(
+            array_merge(
+                $request->all(),
+                ['nTicket' => $nTicket]
+            )
+        );
 
 
-        return redirect()->route('incidencia.index')->with('message', 'Incidencia creada');
+        return redirect()->route('incidencia.index')->with(['message' => 'Incidencia creada', 'data' => $createdData]);
+
+        //return redirect()->route('incidencia.index')->with('message', 'Incidencia creada', $mesActual);
         //return Inertia::location(route('incidencia.index'));
 
     }

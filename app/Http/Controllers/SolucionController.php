@@ -27,6 +27,7 @@ class SolucionController extends Controller
                     $subquery->orWhere('equipos', 'like', '%' . $nombreFilter . '%')
                         ->orWhere('descripcion', 'like', '%' . $nombreFilter . '%')
                         ->orWhere('estado', 'like', '%' . $nombreFilter . '%')
+                        ->orWhere('nTicket', 'like', '%' . $nombreFilter . '%')
                         ->orWhere('equipos', 'like', '%' . $nombreFilter . '%')
                         ->orWhere('tipo_solucion.nombre', 'like', '%' . $nombreFilter . '%');
 
@@ -37,10 +38,11 @@ class SolucionController extends Controller
             // $incidencia = $query->get();
             $solucion = $query->with('incidencias', 'tipo_solucion')->get();
             //$dependencia = $query->paginate(1);
+            //dd($solucion);
 
 
             $tableColumns = [
-                ['key' => 'id', 'label' => 'ID'],
+                ['key' => 'incidencias.nTicket', 'label' => 'TICKED'],
                 ['key' => 'equipos', 'label' => 'Equipo'],
                 ['key' => 'tipo_solucion.nombre', 'label' => 'Tipo de solución'],
                 ['key' => 'descripcion', 'label' => 'Descripción'],
