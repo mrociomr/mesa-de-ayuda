@@ -46,13 +46,13 @@ style="text-align:center;overflow: hidden; background: white">
               <th style="width: 10%; text-align:start"> </th>
               <th style="width: 30%; text-align:start">Oficina </th>
               <th style="width: 10%; text-align:start"> : </th>
-              <td style="width: 50%; text-align:start" v-if="dataTicked[0]?.nTipoProblema">{{ dataTicked[0]?.nTipoProblema }}</td>
+              <td style="width: 50%; text-align:start" v-if="dataTicked[0]?.nOficina">{{ dataTicked[0]?.nOficina }}</td>
             </tr>
             <tr>
               <th style="width: 10%; text-align:start"> </th>
               <th style="width: 30%; text-align:start">Tipo de Problema </th>
               <th style="width: 10%; text-align:start"> : </th>
-              <td style="width: 50%; text-align:start" v-if="dataTicked[0]?.nOficina">{{ dataTicked[0].nOficina }}</td>
+              <td style="width: 50%; text-align:start" v-if="dataTicked[0]?.nTipoProblema">{{ dataTicked[0].nTipoProblema }}</td>
             </tr>
           </thead>
           <tbody>
